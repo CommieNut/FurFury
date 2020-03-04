@@ -20,6 +20,13 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Player Variables")
+		int HP;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Player Variables")
+		int Mana;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Player Variables")
+		int Level;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
