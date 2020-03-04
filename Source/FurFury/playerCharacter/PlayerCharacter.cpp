@@ -9,6 +9,7 @@ APlayerCharacter::APlayerCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//PlayerMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Main Mesh (Skeletal)"));
 }
 
 // Called when the game starts or when spawned
