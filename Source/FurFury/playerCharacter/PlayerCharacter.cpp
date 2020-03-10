@@ -15,8 +15,8 @@ APlayerCharacter::APlayerCharacter()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(GetRootComponent());
-	Camera->SetRelativeLocation(FVector(-500, 0, 1000));
-	Camera->SetRelativeRotation(FRotator(90, -45, 0));
+	Camera->SetRelativeLocation(FVector(-800.f, 0.f, 800.f));
+	Camera->SetRelativeRotation(FRotator(0.f, -45.f, 0.f));
 }
 
 // Called when the game starts or when spawned
