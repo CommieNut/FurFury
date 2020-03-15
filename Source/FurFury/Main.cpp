@@ -18,7 +18,7 @@ AMain::AMain()
 	// Create Camera Boom (Pulls towards the player if there's a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
-	CameraBoom->TargetArmLength = 600.f; // Distance between camera and character
+	CameraBoom->TargetArmLength = 800.f; // Distance between camera and character
 	CameraBoom->bUsePawnControlRotation = true; // Rotates the springarm based on controller
 
 	//Set size for collision capsule
@@ -42,6 +42,8 @@ AMain::AMain()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 840.f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 650.f;
 	GetCharacterMovement()->AirControl = 0.2f;
+
+	EAutoReceiveInput::Player0;
 }
 
 // Called when the game starts or when spawned
@@ -70,6 +72,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
 
+	//Camera rotation for main character.
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("TurnRate", this, &AMain::TurnAtRate);
