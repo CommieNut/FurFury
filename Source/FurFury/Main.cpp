@@ -14,7 +14,6 @@ AMain::AMain()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 	MeleeHitbox = CreateDefaultSubobject<USphereComponent>(TEXT("MeleeHitbox"));
 	MeleeHitbox->SetupAttachment(GetRootComponent());
 
@@ -46,8 +45,6 @@ AMain::AMain()
 	GetCharacterMovement()->JumpZVelocity = 650.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
-	MeleeHitbox->OnComponentBeginOverlap.AddDynamic(this, &AMain::OnOverlapBegin);
-
 	EAutoReceiveInput::Player0;
 }
 
@@ -62,7 +59,6 @@ void AMain::BeginPlay()
 void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -124,12 +120,23 @@ void AMain::LookUpAtRate(float Rate)
 
 void AMain::Melee()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Melee attack"));
+	MeleeHitbox->OnComponentBeginOverlap.AddDynamic(this, &AMain::OnOverlapBegin);
+	if (MeleeOverlap == true)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Melee attack HIT"));
+	}
+	else{
+		UE_LOG(LogTemp, Warning, TEXT("Melee attack"));
+	}
 }
 void AMain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->IsA(AEnemy::StaticClass())) { //checks if the overlap is an enemy
-		UE_LOG(LogTemp, Warning, TEXT("Melee attack HIT"), *OtherActor->GetName());
-		OtherActor->Destroy(); // should destroy the enemy
+	if (OtherActor->IsA(AEnemy::StaticClass())) {
+		MeleeOverlap = true;
+		OtherActor->Destroy();
 	}
+	else {
+		MeleeOverlap = false;
+	}
+	
 }
