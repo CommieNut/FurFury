@@ -27,6 +27,13 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Player Variables")
 		int Level;
 
+	UPROPERTY(VisibleAnywhere)
+		USkeletalMeshComponent * PlayerMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UCameraComponent * Camera;
+
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

@@ -2,6 +2,8 @@
 
 
 #include "PlayerCharacter.h"
+#include "Camera/CameraComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -9,6 +11,12 @@ APlayerCharacter::APlayerCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//PlayerMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Main Mesh (Skeletal)"));
+
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(GetRootComponent());
+	Camera->SetRelativeLocation(FVector(-800.f, 0.f, 800.f));
+	Camera->SetRelativeRotation(FRotator(0.f, -45.f, 0.f));
 }
 
 // Called when the game starts or when spawned
