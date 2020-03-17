@@ -12,11 +12,20 @@ APlayerCharacter::APlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	//PlayerMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Main Mesh (Skeletal)"));
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> HenrikH
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(GetRootComponent());
 	Camera->SetRelativeLocation(FVector(-800.f, 0.f, 800.f));
 	Camera->SetRelativeRotation(FRotator(0.f, -45.f, 0.f));
+<<<<<<< HEAD
+=======
+>>>>>>> yearlyfruit
+>>>>>>> HenrikH
 }
 
 // Called when the game starts or when spawned

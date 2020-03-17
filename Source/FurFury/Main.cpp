@@ -8,6 +8,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Enemy.h"
+<<<<<<< HEAD
+=======
+#include "Combatarm.h"
+>>>>>>> yearlyfruit
 
 // Sets default values
 AMain::AMain()
@@ -48,6 +52,23 @@ AMain::AMain()
 	EAutoReceiveInput::Player0;
 }
 
+<<<<<<< HEAD
+=======
+void AMain::secondaryMeele() // i found a code that fit. https://www.youtube.com/watch?v=9yftOwWp48A&t=54s
+{ // code from https://www.youtube.com/watch?v=9yftOwWp48A&t=54s
+	if (tomeele) {
+		UWorld* world = GetWorld();
+		if (world) {
+			FActorSpawnParameters spawningparameter;
+			spawningparameter.Owner = this;
+			FRotator rotatingside;
+			FVector spawnlocation = this->CameraBoom->GetComponentLocation();
+			world->SpawnActor<ACombatarm>(tomeele, spawnlocation, rotatingside, spawningparameter);
+		}
+	}
+}
+
+>>>>>>> yearlyfruit
 // Called when the game starts or when spawned
 void AMain::BeginPlay()
 {
@@ -71,6 +92,12 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Melee", IE_Pressed, this, &AMain::Melee);
+<<<<<<< HEAD
+=======
+	//need to be close range to kill for both system.
+	PlayerInputComponent->BindAction("2Meele", IE_Pressed, this, &AMain::secondaryMeele); // code from ole flaten tutorial
+
+>>>>>>> yearlyfruit
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
