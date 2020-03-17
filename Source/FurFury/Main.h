@@ -33,22 +33,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float BaseLookUpRate;
 
-<<<<<<< HEAD
-=======
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Meele explosion")
-	//TSubclassOf<class ACombatarm> ACombatarm_BP;
-//UPROPERTY()
-	//bool m2eele;
-//UPROPERTY()
-	//float cooldown;
-//UPROPERTY()
-	//FTimerHandle timer;
-	UPROPERTY(EditAnywhere) // my pawn can't shoot without this.
-		TSubclassOf<class ACombatarm> tomeele;
-	UFUNCTION(BlueprintCallable) // my pawn can't shoot without this.
-		void secondaryMeele();
-
->>>>>>> yearlyfruit
 	UPROPERTY(VisibleAnywhere)
 	bool MeleeOverlap = false;
 
