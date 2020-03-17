@@ -30,6 +30,13 @@ public:
 	UPROPERTY(VisibleAnywhere)
 		USkeletalMeshComponent * PlayerMesh;
 
+<<<<<<< HEAD
+=======
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UCameraComponent * Camera;
+
+
+>>>>>>> yearlyfruit
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

@@ -2,6 +2,8 @@
 
 
 #include "PlayerCharacter.h"
+#include "Camera/CameraComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -10,6 +12,14 @@ APlayerCharacter::APlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	//PlayerMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Main Mesh (Skeletal)"));
+<<<<<<< HEAD
+=======
+
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(GetRootComponent());
+	Camera->SetRelativeLocation(FVector(-800.f, 0.f, 800.f));
+	Camera->SetRelativeRotation(FRotator(0.f, -45.f, 0.f));
+>>>>>>> yearlyfruit
 }
 
 // Called when the game starts or when spawned
