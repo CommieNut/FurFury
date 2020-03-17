@@ -57,7 +57,7 @@ void ACombatarm::BeginPlay()
 // Called every frame
 void ACombatarm::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+	Super::Tick(DeltaTime); 
 	//AddActorLocalOffset(FVector(500.f, 0.f, 0.f) * DeltaTime);
 	FVector direction = GetActorLocation() + FVector(10.0f, 0.0f, 0.0f); // https://forums.unrealengine.com/development-discussion/c-gameplay-programming/30572-need-help-vector-riddle , https://docs.unrealengine.com/en-US/API/Runtime/Core/Math/FVector/GetSafeNormal/index.html , https://docs.unrealengine.com/en-US/API/Runtime/Core/Math/FVector/index.html
 	FVector myspawnpoint = direction + DeltaTime; // 
@@ -67,7 +67,7 @@ void ACombatarm::Tick(float DeltaTime)
 	//SetActorLocation(newlocation);
 
 }
-
+//forgot to use this, oh well.
 void ACombatarm::BulletExpired()
 {
 	Destroy();

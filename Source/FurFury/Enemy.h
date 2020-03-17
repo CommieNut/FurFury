@@ -15,6 +15,7 @@ public:
 	AEnemy();
 	
 	virtual void Tick(float enemypawntime) override;
+	//helped by isak and dennis
 
 UPROPERTY(VisibleAnywhere, Category = "Mesh")
 	class UStaticMeshComponent* MeshComponent;

@@ -86,6 +86,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Melee", IE_Pressed, this, &AMain::Melee);
+	//need to be close range to kill for both system.
 	PlayerInputComponent->BindAction("2Meele", IE_Pressed, this, &AMain::secondaryMeele); // code from ole flaten tutorial
 
 
