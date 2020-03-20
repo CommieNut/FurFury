@@ -19,22 +19,25 @@ public:
 	class USphereComponent* MeleeHitbox;
 
 	/** Camera Boom positioning the camera behind the player */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
 	/** Follow Camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
 	/** Base turn rates to scale turning functions for the camera*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
 	float BaseTurnRate;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
 	float BaseLookUpRate;
 
 	UPROPERTY(VisibleAnywhere)
-	bool MeleeOverlap = false;
+	bool MeleeActive = false;
+
+	UPROPERTY(VisibleAnywhere)
+	bool Colliding = false;
 
 protected:
 	// Called when the game starts or when spawned
@@ -63,11 +66,16 @@ public:
 	*/
 	void LookUpAtRate(float Rate);
 
-	void Melee();
+	void MeleeOn();
+	void MeleeOff();
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	//UFUNCTION()
+	//void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex);
+
+
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-};
+};  
