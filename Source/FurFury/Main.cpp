@@ -19,8 +19,6 @@ AMain::AMain()
 	MeleeHitbox = CreateDefaultSubobject<USphereComponent>(TEXT("MeleeHitbox"));
 	MeleeHitbox->SetupAttachment(GetRootComponent());
 	MeleeHitbox->AddLocalOffset(FVector(80.f, 0.f, 0.f));
-	MeleeHitbox->OnComponentBeginOverlap.AddDynamic(this, &AMain::OnOverlapBegin); // On collide start function
-	//MeleeHitbox->OnComponentEndOverlap.AddDynamic(this, &AMain::OnOverlapEnd); // On collide end start function
 
 	// Create Camera Boom & Camera Boom Settings (Pulls towards the player if there's a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -81,17 +79,10 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	PlayerInputComponent->BindAction("Melee", IE_Pressed, this, &AMain::MeleeOn);
-	PlayerInputComponent->BindAction("Melee", IE_Released, this, &AMain::MeleeOff);
+	PlayerInputComponent->BindAction("Melee", IE_Pressed, this, &AMain::MeleeAttack);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
-
-	//Camera rotation for main character.
-	//PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	//PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	//PlayerInputComponent->BindAxis("TurnRate", this, &AMain::TurnAtRate);
-	//PlayerInputComponent->BindAxis("LookUpRate", this, &AMain::LookUpAtRate);
 }
 
 
@@ -130,30 +121,14 @@ void AMain::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AMain::MeleeOn()
+void AMain::MeleeAttack()
 {
-	MeleeActive = true;
+	UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
+	TArray<AActor*> TempActors;
+	MeleeHitbox->GetOverlappingActors(TempActors, AEnemy::StaticClass());
+	for (size_t i = 0; i < TempActors.Num(); i++)
+	{
+		TempActors[i]->Destroy();
+		UE_LOG(LogTemp, Warning, TEXT("Enemy Destroyed!"));
+	}
 }
-void AMain::MeleeOff()
-{
-	MeleeActive = false;
-}
-void AMain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	//Colliding = true;
-	//while (Colliding == true) {
-		if (OtherActor->IsA(AEnemy::StaticClass()) && MeleeActive == true) {
-			UE_LOG(LogTemp, Warning, TEXT("Melee attack HIT"));
-			OtherActor->Destroy();
-		//	Colliding = false;
-		}
-		else {
-			UE_LOG(LogTemp, Warning, TEXT("Colliding"));
-		}
-	//}
-}
-
-/*void AMain::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex)
-{
-	Colliding = false;
-}*/
