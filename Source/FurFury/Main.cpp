@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Enemy.h"
+#include "Blueprint/UserWidget.h"
 
 // Sets default values
 AMain::AMain()
@@ -61,8 +62,8 @@ AMain::AMain()
 void AMain::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
+
 
 // Called every frame
 void AMain::Tick(float DeltaTime)
@@ -124,11 +125,12 @@ void AMain::LookUpAtRate(float Rate)
 void AMain::MeleeAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
-	TArray<AActor*> TempActors;
-	MeleeHitbox->GetOverlappingActors(TempActors, AEnemy::StaticClass());
-	for (size_t i = 0; i < TempActors.Num(); i++)
+	TArray<AActor*> TempActors; // Make an array to contain colliding actors
+	MeleeHitbox->GetOverlappingActors(TempActors, AEnemy::StaticClass()); // Checks for colliding actors, if true then add to the temporary array. A filter is added to add enemies only.
+	for (size_t i = 0; i < TempActors.Num(); i++) // runs through the array
 	{
-		TempActors[i]->Destroy();
+		TempActors[i]->Destroy(); // Destroy actor in that specefic array index
+		EnemyToKill--;
 		UE_LOG(LogTemp, Warning, TEXT("Enemy Destroyed!"));
 	}
 }
