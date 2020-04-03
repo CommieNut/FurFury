@@ -69,6 +69,12 @@ void AMain::BeginPlay()
 void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (GetInputAxisValue("MoveForward") != 0 || GetInputAxisValue("MoveRight") != 0) {
+		bIsRunning = true;
+	}
+	else {
+		bIsRunning = false;
+	}
 }
 
 // Called to bind functionality to input
@@ -79,9 +85,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-
 	PlayerInputComponent->BindAction("Melee", IE_Pressed, this, &AMain::MeleeAttack);
-
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
 }
@@ -112,7 +116,6 @@ void AMain::MoveRight(float Value)
 
 	}
 }
-
 void AMain::TurnAtRate(float Rate)
 {
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
@@ -121,7 +124,6 @@ void AMain::LookUpAtRate(float Rate)
 {
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
-
 void AMain::MeleeAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));

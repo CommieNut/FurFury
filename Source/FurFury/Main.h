@@ -33,17 +33,20 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
 	float BaseLookUpRate;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	int EnemyToKill = 50;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	int EnemySpawned = 50;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	float PlayerHealth = 1.0;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	float PlayerStamina = 1.0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Dynamic Player Variables")
+	bool bIsRunning = false;
 
 
 
