@@ -2,8 +2,8 @@
 Developed with Unreal Engine 4 by:
 
 Programmers: 
-Mohamed Kwaik
-Haolin Fu
+Mohamed Kwaik,
+Haolin Fu,
 Henrik Hoberg
 
 Concept Artist:
