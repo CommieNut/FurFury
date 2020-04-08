@@ -6,6 +6,7 @@
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "TimerManager.h"
 
 // Sets default values
 AEnemyMinionAI::AEnemyMinionAI()
@@ -18,14 +19,23 @@ AEnemyMinionAI::AEnemyMinionAI()
 	Hitbox->AddLocalOffset(FVector(80.f, 0.f, 0.f));
 
 
+}
 
+void AEnemyMinionAI::deathFunction()
+{
+	FTimerHandle THandle;
+	GetWorld()->GetTimerManager().SetTimer(THandle, this, &AEnemyMinionAI::destroyFunction, ftimeTilDeath, false);
+}
+
+void AEnemyMinionAI::destroyFunction()
+{
+	this->Destroy();
 }
 
 // Called when the game starts or when spawned
 void AEnemyMinionAI::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame

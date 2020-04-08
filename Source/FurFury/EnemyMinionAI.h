@@ -19,6 +19,16 @@ public:
 	class USphereComponent* Hitbox;
 
 
+	//On Death Functions
+	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
+	void deathFunction(); //EnemyToKill--;
+
+	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
+	void destroyFunction();
+
+	UPROPERTY(EditAnywhere, Category = "Minion Death Function Property")
+	float ftimeTilDeath = 1.0000f;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

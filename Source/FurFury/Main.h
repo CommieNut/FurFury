@@ -6,6 +6,14 @@
 #include "GameFramework/Character.h"
 #include "Main.generated.h"
 
+UENUM(BlueprintType, Category = "Player Animation")
+enum class animationStates : uint8 {
+	idle,
+	attacking,
+	running
+};
+
+
 UCLASS()
 class FURFURY_API AMain : public ACharacter
 {
@@ -15,8 +23,8 @@ public:
 	// Sets default values for this character's properties
 	AMain();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MeleeAttack)
-	class USphereComponent* MeleeHitbox;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = MeleeAttack)
+	class UCapsuleComponent * MeleeHitbox;
 
 	/** Camera Boom positioning the camera behind the player */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -40,14 +48,16 @@ public:
 	int EnemySpawned = 50;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	float PlayerHealth = 1.0;
+	float PlayerHealth = 100.0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	float PlayerStamina = 1.0;
+	float PlayerStamina = 100.0;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Dynamic Player Variables")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	bool bIsRunning = false;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Player Animation")
+	animationStates states;
 
 
 protected:
@@ -83,3 +93,4 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };  
+

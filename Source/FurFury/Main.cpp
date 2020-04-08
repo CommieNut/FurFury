@@ -6,8 +6,9 @@
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "EnemyMinionAI.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values
 AMain::AMain()
@@ -16,9 +17,8 @@ AMain::AMain()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	//Creates the invisible sphere component we use as a hitbox to detect collision on key press. (Doesnt work yet)
-	MeleeHitbox = CreateDefaultSubobject<USphereComponent>(TEXT("MeleeHitbox"));
-	MeleeHitbox->SetupAttachment(GetRootComponent());
-	MeleeHitbox->AddLocalOffset(FVector(80.f, 0.f, 0.f));
+	MeleeHitbox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("MeleeHitbox"));
+	MeleeHitbox->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, false), "R_HandSocket");
 
 	// Create Camera Boom & Camera Boom Settings (Pulls towards the player if there's a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -68,10 +68,10 @@ void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if (GetInputAxisValue("MoveForward") != 0 || GetInputAxisValue("MoveRight") != 0) {
-		bIsRunning = true;
+		states = animationStates::running;
 	}
 	else {
-		bIsRunning = false;
+		states = animationStates::idle;
 	}
 }
 
@@ -124,13 +124,18 @@ void AMain::LookUpAtRate(float Rate)
 }
 void AMain::MeleeAttack()
 {
+	states = animationStates::attacking;
 	UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
 	TArray<AActor*> TempActors; // Make an array to contain colliding actors
 	MeleeHitbox->GetOverlappingActors(TempActors, AEnemyMinionAI::StaticClass()); // Checks for colliding actors, if true then add to the temporary array. A filter is added to add enemies only.
 	for (size_t i = 0; i < TempActors.Num(); i++) // runs through the array
 	{
-		TempActors[i]->Destroy(); // Destroy actor in that specefic array index
-		EnemyToKill--;
+		//TempActors[i]->Destroy(); // Destroy actor in that specefic array index
+		auto enemyActor = Cast<AEnemyMinionAI>(TempActors[i]);
+		if(IsValid(enemyActor))
+		{
+			enemyActor->deathFunction();
+		}
 		UE_LOG(LogTemp, Warning, TEXT("Enemy Destroyed!"));
 	}
 }
