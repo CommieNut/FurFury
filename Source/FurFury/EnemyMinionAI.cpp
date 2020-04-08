@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AEnemyMinionAI::AEnemyMinionAI()
@@ -29,6 +30,11 @@ void AEnemyMinionAI::deathFunction()
 
 void AEnemyMinionAI::destroyFunction()
 {
+	auto Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if(IsValid(Player))
+	{
+		Player->EnemyToKill--;
+	}
 	this->Destroy();
 }
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Main.h"
 #include "GameFramework/Character.h"
 #include "EnemyMinionAI.generated.h"
 
@@ -15,6 +16,8 @@ public:
 	// Sets default values for this character's properties
 	AEnemyMinionAI();
 
+	AMain* PlayerCharacter;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MeleeAttack)
 	class USphereComponent* Hitbox;
 
@@ -27,7 +30,7 @@ public:
 	void destroyFunction();
 
 	UPROPERTY(EditAnywhere, Category = "Minion Death Function Property")
-	float ftimeTilDeath = 1.0000f;
+	float ftimeTilDeath = 0.225f;
 	
 protected:
 	// Called when the game starts or when spawned
