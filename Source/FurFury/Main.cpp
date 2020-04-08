@@ -33,10 +33,9 @@ AMain::AMain()
 	//Set size for collision capsule
 	GetCapsuleComponent()->SetCapsuleSize(34.f, 88.f);
 
+	// Create and Attach the camera to the end of the boom.
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	// Attach the camera to the end of the boom, and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false;
 
 
 	//Set our turn rates for input (DISABLED FROM CONTROLS (Mo 19.03.2020))
