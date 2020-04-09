@@ -6,36 +6,43 @@
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/SphereComponent.h"
-#include "Enemy.h"
-#include "Combatarm.h"
+#include "Components/CapsuleComponent.h"
+#include "EnemyMinionAI.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values
 AMain::AMain()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	MeleeHitbox = CreateDefaultSubobject<USphereComponent>(TEXT("MeleeHitbox"));
-	MeleeHitbox->SetupAttachment(GetRootComponent());
+	
+	//Creates the invisible sphere component we use as a hitbox to detect collision on key press. (Doesnt work yet)
+	MeleeHitbox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("MeleeHitbox"));
+	MeleeHitbox->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, false), "R_HandSocket");
 
-	// Create Camera Boom (Pulls towards the player if there's a collision)
+	// Create Camera Boom & Camera Boom Settings (Pulls towards the player if there's a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
-	CameraBoom->TargetArmLength = 800.f; // Distance between camera and character
-	CameraBoom->bUsePawnControlRotation = true; // Rotates the springarm based on controller
+	CameraBoom->TargetArmLength = 1000.f; // Distance between camera and character
+	CameraBoom->bUsePawnControlRotation = false; // Rotates the springarm based on controller (Disabled)
+	CameraBoom->AddLocalRotation(FRotator(0.0f, -70.0f, 55.0f)); // Rotates the springarm so that its paralell to the map
+	CameraBoom->bInheritPitch = false; // Disabled pitch inheritance from root component.
+	CameraBoom->bInheritYaw = false; // Disabled yaw inheritance from root component.
+	CameraBoom->bInheritRoll = false; // Disabled roll inheritance from root component.
 
 	//Set size for collision capsule
 	GetCapsuleComponent()->SetCapsuleSize(34.f, 88.f);
 
+	// Create and Attach the camera to the end of the boom.
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	// Attach the camera to the end of the boom, and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false;
-	//Set our turn rates for input
+
+
+	//Set our turn rates for input (DISABLED FROM CONTROLS (Mo 19.03.2020))
 	BaseTurnRate = 65.f;
 	BaseLookUpRate = 65.f;
 
-	// Don't rotate when the controller rotates.
+	// Don't rotate when the controller rotates. (That didnt work, had to disable the keybinds to controller for the camera, aka mouse doesnt control cam anymore. -Mo 19.03.2020)
 	// Let that just affect the camera
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = false;
@@ -44,36 +51,33 @@ AMain::AMain()
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 840.f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 650.f;
-	GetCharacterMovement()->AirControl = 0.2f;
+	GetCharacterMovement()->AirControl = 0.2f; // (Kanskje burde fjerne air control... -Mo 19.03.2020)
 
-	EAutoReceiveInput::Player0;
-}
-
-void AMain::secondaryMeele() // i found a code that fit. https://www.youtube.com/watch?v=9yftOwWp48A&t=54s
-{ // code from https://www.youtube.com/watch?v=9yftOwWp48A&t=54s
-	if (tomeele) {
-		UWorld* world = GetWorld();
-		if (world) {
-			FActorSpawnParameters spawningparameter;
-			spawningparameter.Owner = this;
-			FRotator rotatingside;
-			FVector spawnlocation = this->CameraBoom->GetComponentLocation();
-			world->SpawnActor<ACombatarm>(tomeele, spawnlocation, rotatingside, spawningparameter);
-		}
-	}
+	AutoPossessPlayer = EAutoReceiveInput::Player0; // Assume immediate control of character without having to set it up in project settings
 }
 
 // Called when the game starts or when spawned
 void AMain::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
+
 
 // Called every frame
 void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (GetInputAxisValue("MoveForward") != 0 || GetInputAxisValue("MoveRight") != 0) {
+		states = animationStates::running;
+	}
+	else {
+		states = animationStates::idle;
+	}
+
+	if(PlayerHealth <= 0)
+	{
+		this->Destroy();
+	}
 }
 
 // Called to bind functionality to input
@@ -82,22 +86,13 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	check(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-
-	PlayerInputComponent->BindAction("Melee", IE_Pressed, this, &AMain::Melee);
-	//need to be close range to kill for both system.
-	PlayerInputComponent->BindAction("2Meele", IE_Pressed, this, &AMain::secondaryMeele); // code from ole flaten tutorial
-
-
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMain::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMain::StopJumping);
+	PlayerInputComponent->BindAction("Melee", IE_Pressed, this, &AMain::MeleeAttack);
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
-
-	//Camera rotation for main character.
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("TurnRate", this, &AMain::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &AMain::LookUpAtRate);
+	PlayerInputComponent->BindAction("Heal", IE_Pressed, this, &AMain::HealAbility);
+	PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt);
 }
 
 
@@ -113,7 +108,6 @@ void AMain::MoveForward(float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
-
 void AMain::MoveRight(float Value)
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
@@ -135,26 +129,33 @@ void AMain::LookUpAtRate(float Rate)
 {
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
-
-void AMain::Melee()
+void AMain::MeleeAttack()
 {
-	MeleeHitbox->OnComponentBeginOverlap.AddDynamic(this, &AMain::OnOverlapBegin);
-	if (MeleeOverlap == true)
+	states = animationStates::attacking;
+	UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
+	TArray<AActor*> TempActors; // Make an array to contain colliding actors
+	MeleeHitbox->GetOverlappingActors(TempActors, AEnemyMinionAI::StaticClass()); // Checks for colliding actors, if true then add to the temporary array. A filter is added to add enemies only.
+	for (size_t i = 0; i < TempActors.Num(); i++) // runs through the array
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Melee attack HIT"));
-	}
-	else{
-		UE_LOG(LogTemp, Warning, TEXT("Melee attack"));
+		//TempActors[i]->Destroy(); // Destroy actor in that specefic array index
+		auto enemyActor = Cast<AEnemyMinionAI>(TempActors[i]);
+		if(IsValid(enemyActor))
+		{
+			enemyActor->deathFunction();
+		}
 	}
 }
-void AMain::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+
+void AMain::HealAbility()
 {
-	if (OtherActor->IsA(AEnemy::StaticClass())) {
-		MeleeOverlap = true;
-		OtherActor->Destroy();
+	if(PlayerHealth < 100.0 && PlayerStamina > 25.0)
+	{
+		PlayerHealth += 25.0;
+		PlayerStamina -= 25.0;
 	}
-	else {
-		MeleeOverlap = false;
-	}
-	
+}
+
+void AMain::Hurt()
+{
+	PlayerHealth -= 25.f;
 }

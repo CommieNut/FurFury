@@ -6,6 +6,16 @@
 #include "GameFramework/Character.h"
 #include "Main.generated.h"
 
+UENUM(BlueprintType, Category = "Player Animation")
+enum class animationStates : uint8 {
+	idle,
+	attacking,
+	running,
+	dying,
+	dead
+};
+
+
 UCLASS()
 class FURFURY_API AMain : public ACharacter
 {
@@ -15,39 +25,42 @@ public:
 	// Sets default values for this character's properties
 	AMain();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MeleeAttack)
-	class USphereComponent* MeleeHitbox;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = MeleeAttack)
+	class UCapsuleComponent * MeleeHitbox;
 
 	/** Camera Boom positioning the camera behind the player */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
 	/** Follow Camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
 	/** Base turn rates to scale turning functions for the camera*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
 	float BaseTurnRate;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
 	float BaseLookUpRate;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Meele explosion")
-	//TSubclassOf<class ACombatarm> ACombatarm_BP;
-//UPROPERTY()
-	//bool m2eele;
-//UPROPERTY()
-	//float cooldown;
-//UPROPERTY()
-	//FTimerHandle timer;
-	UPROPERTY(EditAnywhere) // my pawn can't shoot without this.
-		TSubclassOf<class ACombatarm> tomeele;
-	UFUNCTION(BlueprintCallable) // my pawn can't shoot without this.
-		void secondaryMeele();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
+	int EnemyToKill = 50;
 
-	UPROPERTY(VisibleAnywhere)
-	bool MeleeOverlap = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
+	int EnemySpawned = 50;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
+	float PlayerHealth = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
+	float PlayerStamina = 100.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Variables")
+	bool bIsRunning = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Player Animation")
+	animationStates states;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -76,11 +89,13 @@ public:
 	*/
 	void LookUpAtRate(float Rate);
 
-	void Melee();
+	void MeleeAttack();
 
-	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void HealAbility();
+	void Hurt();
+
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-};
+};  
+

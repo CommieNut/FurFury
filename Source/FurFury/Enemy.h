@@ -10,24 +10,21 @@ UCLASS()
 class FURFURY_API AEnemy : public AActor
 {
 	GENERATED_BODY()
+
 public:
 	// Sets default values for this actor's properties
 	AEnemy();
-	
-	virtual void Tick(float enemypawntime) override;
-	//helped by isak and dennis
-
-UPROPERTY(VisibleAnywhere, Category = "Mesh")
-	class UStaticMeshComponent* MeshComponent;
-
-		UPROPERTY(VisibleAnywhere, Category = "Collision | Capsule")
-		class UCapsuleComponent* Collision;	
-	
-private:
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+public:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	//The enemy Mesh
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh")
+	class USkeletalMeshComponent * MeshComponent;
 };
 
