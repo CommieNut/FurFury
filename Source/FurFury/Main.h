@@ -10,7 +10,9 @@ UENUM(BlueprintType, Category = "Player Animation")
 enum class animationStates : uint8 {
 	idle,
 	attacking,
-	running
+	running,
+	dying,
+	dead
 };
 
 
@@ -48,10 +50,10 @@ public:
 	int EnemySpawned = 50;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	float PlayerHealth = 100.0;
+	float PlayerHealth = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	float PlayerStamina = 100.0;
+	float PlayerStamina = 100.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	bool bIsRunning = false;
@@ -88,6 +90,9 @@ public:
 	void LookUpAtRate(float Rate);
 
 	void MeleeAttack();
+
+	void HealAbility();
+	void Hurt();
 
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

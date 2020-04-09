@@ -73,6 +73,11 @@ void AMain::Tick(float DeltaTime)
 	else {
 		states = animationStates::idle;
 	}
+
+	if(PlayerHealth <= 0)
+	{
+		this->Destroy();
+	}
 }
 
 // Called to bind functionality to input
@@ -81,11 +86,13 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	check(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMain::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMain::StopJumping);
 	PlayerInputComponent->BindAction("Melee", IE_Pressed, this, &AMain::MeleeAttack);
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
+	PlayerInputComponent->BindAction("Heal", IE_Pressed, this, &AMain::HealAbility);
+	PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt);
 }
 
 
@@ -136,6 +143,19 @@ void AMain::MeleeAttack()
 		{
 			enemyActor->deathFunction();
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Enemy Destroyed!"));
 	}
+}
+
+void AMain::HealAbility()
+{
+	if(PlayerHealth < 100.0 && PlayerStamina > 25.0)
+	{
+		PlayerHealth += 25.0;
+		PlayerStamina -= 25.0;
+	}
+}
+
+void AMain::Hurt()
+{
+	PlayerHealth -= 25.f;
 }

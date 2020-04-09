@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Main.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "GameFramework/Character.h"
 #include "EnemyMinionAI.generated.h"
+
 
 UCLASS()
 class FURFURY_API AEnemyMinionAI : public ACharacter
@@ -31,6 +33,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Minion Death Function Property")
 	float ftimeTilDeath = 0.225f;
+
+	UPROPERTY(EditAnywhere, Category = "Minion Particle System")
+	UParticleSystem* MinionDeathParticle;
 	
 protected:
 	// Called when the game starts or when spawned

@@ -2,12 +2,13 @@
 
 
 #include "EnemyMinionAI.h"
-#include "Components/SphereComponent.h"
 #include "Engine/World.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/SphereComponent.h"
+#include "ConstructorHelpers.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 AEnemyMinionAI::AEnemyMinionAI()
@@ -18,6 +19,9 @@ AEnemyMinionAI::AEnemyMinionAI()
 	Hitbox = CreateDefaultSubobject<USphereComponent>(TEXT("Hitbox"));
 	Hitbox->SetupAttachment(GetRootComponent());
 	Hitbox->AddLocalOffset(FVector(80.f, 0.f, 0.f));
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> Particle(TEXT("ParticleSystem'/Game/InfinityBladeEffects/Effects/FX_Monsters/FX_Monster_Gruntling/Bomber/P_FireBombExplosion.P_FireBombExplosion'"));
+	MinionDeathParticle = Particle.Object;
 
 
 }
@@ -34,6 +38,11 @@ void AEnemyMinionAI::destroyFunction()
 	if(IsValid(Player))
 	{
 		Player->EnemyToKill--;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Enemy Destroyed!"));
+	if(MinionDeathParticle)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MinionDeathParticle, GetActorLocation(), GetActorRotation(), true, EPSCPoolMethod::None, true);
 	}
 	this->Destroy();
 }
