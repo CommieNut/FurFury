@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Components/SphereComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Pickup_Stamina.generated.h"
@@ -14,6 +15,11 @@ class FURFURY_API APickup_Stamina : public AActor
 public:	
 	// Sets default values for this actor's properties
 	APickup_Stamina();
+	UPROPERTY(VisibleAnywhere, Category = "CollisionCapsule")
+	USphereComponent* CollisionMesh;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Mesh")
+	UStaticMeshComponent* ManaMesh;
 
 protected:
 	// Called when the game starts or when spawned

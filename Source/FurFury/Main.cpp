@@ -6,9 +6,9 @@
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "EnemyMinionAI.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Pickup_Stamina.h"
 
 // Sets default values
 AMain::AMain()
@@ -78,6 +78,18 @@ void AMain::Tick(float DeltaTime)
 	{
 		this->Destroy();
 	}
+
+	TArray<AActor*> StaminaCapsules; // Make an array to contain colliding actors
+	GetCapsuleComponent()->GetOverlappingActors(StaminaCapsules, APickup_Stamina::StaticClass()); // Checks for colliding actors, if true then add to the temporary array. A filter is added to add enemies only.
+	for (size_t i = 0; i < StaminaCapsules.Num(); i++) // runs through the array
+	{
+		if(PlayerStamina < 76.f)
+		{
+			PlayerStamina += 25.f;
+			StaminaCapsules[i]->Destroy();
+		}
+	}
+
 }
 
 // Called to bind functionality to input
@@ -159,3 +171,5 @@ void AMain::Hurt()
 {
 	PlayerHealth -= 25.f;
 }
+
+

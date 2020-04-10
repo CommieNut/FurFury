@@ -44,7 +44,15 @@ void AEnemyMinionAI::destroyFunction()
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MinionDeathParticle, GetActorLocation(), GetActorRotation(), true, EPSCPoolMethod::None, true);
 	}
+	this->SpawnMana(GetActorLocation(), GetActorRotation());
 	this->Destroy();
+}
+
+void AEnemyMinionAI::SpawnMana(FVector Loc, FRotator Rot)
+{
+	FActorSpawnParameters SpawnParam;
+	AActor* SpawnedActorRef = GetWorld()->SpawnActor<AActor>(ActorToSpawn, Loc, Rot, SpawnParam);
+	UE_LOG(LogTemp, Warning, TEXT("Stamina Spawned"));
 }
 
 // Called when the game starts or when spawned

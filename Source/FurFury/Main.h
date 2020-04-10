@@ -62,6 +62,7 @@ public:
 	animationStates states;
 
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -93,7 +94,6 @@ public:
 
 	void HealAbility();
 	void Hurt();
-
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }

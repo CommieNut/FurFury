@@ -23,19 +23,24 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MeleeAttack)
 	class USphereComponent* Hitbox;
 
-
-	//On Death Functions
-	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
-	void deathFunction(); //EnemyToKill--;
-
-	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
-	void destroyFunction();
-
 	UPROPERTY(EditAnywhere, Category = "Minion Death Function Property")
 	float ftimeTilDeath = 0.225f;
 
 	UPROPERTY(EditAnywhere, Category = "Minion Particle System")
 	UParticleSystem* MinionDeathParticle;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Minion Mana Drop")
+	TSubclassOf<AActor> ActorToSpawn;
+
+	//On Death Functions
+	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
+		void deathFunction(); //EnemyToKill--;
+
+	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
+		void destroyFunction();
+
+	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
+		void SpawnMana(FVector Loc, FRotator Rot);
 	
 protected:
 	// Called when the game starts or when spawned
