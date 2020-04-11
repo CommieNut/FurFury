@@ -15,8 +15,6 @@ class FURFURY_API APickup_Stamina : public AActor
 public:	
 	// Sets default values for this actor's properties
 	APickup_Stamina();
-	UPROPERTY(VisibleAnywhere, Category = "CollisionCapsule")
-	USphereComponent* CollisionMesh;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Mesh")
 	UStaticMeshComponent* ManaMesh;

@@ -50,10 +50,10 @@ public:
 	int EnemySpawned = 50;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	float PlayerHealth = 100.0f;
+	int PlayerHealth = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	float PlayerStamina = 100.0f;
+	int PlayerStamina = 100.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	bool bIsRunning = false;
@@ -94,6 +94,9 @@ public:
 
 	void HealAbility();
 	void Hurt();
+
+	UFUNCTION()
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }

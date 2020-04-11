@@ -60,6 +60,8 @@ AMain::AMain()
 void AMain::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMain::OnBeginOverlap);
 }
 
 
@@ -78,18 +80,6 @@ void AMain::Tick(float DeltaTime)
 	{
 		this->Destroy();
 	}
-
-	TArray<AActor*> StaminaCapsules; // Make an array to contain colliding actors
-	GetCapsuleComponent()->GetOverlappingActors(StaminaCapsules, APickup_Stamina::StaticClass()); // Checks for colliding actors, if true then add to the temporary array. A filter is added to add enemies only.
-	for (size_t i = 0; i < StaminaCapsules.Num(); i++) // runs through the array
-	{
-		if(PlayerStamina < 76.f)
-		{
-			PlayerStamina += 25.f;
-			StaminaCapsules[i]->Destroy();
-		}
-	}
-
 }
 
 // Called to bind functionality to input
@@ -160,16 +150,36 @@ void AMain::MeleeAttack()
 
 void AMain::HealAbility()
 {
-	if(PlayerHealth < 100.0 && PlayerStamina > 25.0)
+	if(PlayerHealth < 100 && PlayerStamina >= 25)
 	{
-		PlayerHealth += 25.0;
-		PlayerStamina -= 25.0;
+		PlayerHealth += 25;
+		PlayerStamina -= 25;
 	}
 }
 
 void AMain::Hurt()
 {
-	PlayerHealth -= 25.f;
+	PlayerHealth -= 25;
+}
+
+void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Stamina Collide"));
+	//Player collides with a potential stamina
+	//Casting to check if it is a stamina actor
+	APickup_Stamina* ActorCheck = Cast<APickup_Stamina>(OtherActor);
+		if (IsValid(ActorCheck))
+		{
+			if(PlayerStamina <= 75)
+			{
+				PlayerStamina += 25;
+				ActorCheck->Destroy();
+			}
+			
+				//Found the actor you're looking for, time to stop
+				return;
+		}
+		
 }
 
 
