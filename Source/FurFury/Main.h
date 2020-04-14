@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Main.generated.h"
 
+class UPawnNoiseEmitterComponent;
+
 UENUM(BlueprintType, Category = "Player Animation")
 enum class animationStates : uint8 {
 	idle,
@@ -67,6 +69,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
+	UPawnNoiseEmitterComponent* NoiseEmitterComp;
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
