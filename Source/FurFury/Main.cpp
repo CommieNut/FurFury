@@ -9,7 +9,6 @@
 #include "EnemyMinionAI.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Pickup_Stamina.h"
-#include "Components/PawnNoiseEmitterComponent.h"
 
 // Sets default values
 AMain::AMain()
@@ -55,8 +54,6 @@ AMain::AMain()
 	GetCharacterMovement()->AirControl = 0.2f; // (Kanskje burde fjerne air control... -Mo 19.03.2020)
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Assume immediate control of character without having to set it up in project settings
-
-	NoiseEmitterComp = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("NoiseEmitter")); //Component that makes noice. used by AI's to detect FurFur
 }
 
 // Called when the game starts or when spawned
