@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "EnemyMinionAI.generated.h"
 
+class UPawnSensingComponent;
 
 UCLASS()
 class FURFURY_API AEnemyMinionAI : public ACharacter
@@ -46,6 +47,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, Category = "AI")
+	UPawnSensingComponent* PawnSensing;
+
+	UFUNCTION()
+	void OnPawnSeen(APawn* SeenPawn);
+
+	UFUNCTION()
+	void OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
