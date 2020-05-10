@@ -67,33 +67,3 @@ void AEnemySpawner::spawn() {
 
 	}
 }
-/*
-void AEnemySpawner::spawn() {
-	if (tospawn) {
-		UWorld* world = GetWorld();
-		if (world) {
-			FActorSpawnParameters spawningparameter;
-			spawningparameter.Owner = this;
-			FRotator rotatingside;
-			FVector spawnlocation = this->spawnbox->GetComponentLocation();
-			world->SpawnActor<AEnemyMinionAI>(tospawn, spawnlocation, rotatingside, spawningparameter);
-			//GetWorldTimerManager().SetTimer(spawntimer, this, &AEnemySpawner::spawn, spawn1to5delay, false);
-		}
-	}
-
-}*/
-/*
-void AEnemySpawner::spawn2() {
-	if (tospawn) {
-		UWorld* world = GetWorld();
-		if ((getdestroyed)->IsPendingKill()) {
-			FActorSpawnParameters spawningparameter;
-			spawningparameter.Owner = this;
-			FRotator rotatingside;
-			FVector spawnlocation = this->spawnbox->GetComponentLocation();
-			world->SpawnActor<AEnemyMinionAI>(tospawn, spawnlocation, rotatingside, spawningparameter);
-			GetWorldTimerManager().SetTimer(spawntimer, this, &AEnemySpawner::spawn, spawn1to5delay, false);
-		}
-	}
-
-}*/
