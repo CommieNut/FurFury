@@ -146,6 +146,7 @@ void AMain::MeleeAttack()
 		auto enemyActor = Cast<AEnemyMinionAI>(TempActors[i]);
 		if(IsValid(enemyActor))
 		{
+			enemyActor->fMinionHealth -= 50;
 			enemyActor->deathFunction();
 		}
 	}

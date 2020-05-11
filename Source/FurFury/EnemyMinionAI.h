@@ -29,9 +29,15 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Minion Particle System")
 	UParticleSystem* MinionDeathParticle;
+
+	UPROPERTY(EditAnywhere, Category = "Minion Particle System")
+	UParticleSystem* MinionDamagedParticle;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Minion Mana Drop")
 	TSubclassOf<AActor> ActorToSpawn;
+
+	UPROPERTY(EditAnywhere, Category = "Minion Health")
+	float fMinionHealth = 100.f;
 
 	//On Death Functions
 	UFUNCTION(BlueprintCallable, Category = "Minion Functions")

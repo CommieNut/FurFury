@@ -37,8 +37,8 @@ void AEnemyMinionAI::OnPawnSeen(APawn* SeenPawn)
 	{
 		return;
 	}
-	//visual test
-	DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 32.0f, 12, FColor::Red, false, 0.5f);
+	// visual test for debugging (Draws a red sphere if the enemy can see FurFur).
+	// DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 32.0f, 12, FColor::Red, false, 0.5f);
 
 	FVector Direction = SeenPawn->GetActorLocation() - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
 	Direction.Normalize();
@@ -47,13 +47,13 @@ void AEnemyMinionAI::OnPawnSeen(APawn* SeenPawn)
 	NewLookAt.Pitch = 0.0f; //Resets Pitch and Roll. The enemy is now unable to rotate in these directions.
 	NewLookAt.Roll = 0.0f;
 	SetActorRotation(NewLookAt); // rotates the enemy towards the player.
-	AddActorLocalOffset(FVector(10.f, 0.f, 0.f)); //Moves the enemy forwards, (towards player).
+	AddActorLocalOffset(FVector(15.f, 0.f, 0.f)); //Moves the enemy forwards, (towards player).
 }
 
 void AEnemyMinionAI::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume)
 {
-	//visual test
-	DrawDebugSphere(GetWorld(), Location, 32.0f, 12, FColor::Green, false, 0.5f);
+	// visual test for debugging (Draws a green sphere if the enemy can hear FurFur).
+	// DrawDebugSphere(GetWorld(), Location, 32.0f, 12, FColor::Green, false, 0.5f);
 
 	FVector Direction = Location - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
 	Direction.Normalize();
@@ -63,10 +63,10 @@ void AEnemyMinionAI::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Locatio
 	NewLookAt.Roll = 0.0f;
 	SetActorRotation(NewLookAt); // rotates the enemy towards the player.
 
-	AMain* obj = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if (IsValid(obj))
+	AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (IsValid(Player))
 	{
-		obj->PlayerHealth -= 1;
+		Player->PlayerHealth -= 1;
 	}
 }
 
@@ -78,18 +78,25 @@ void AEnemyMinionAI::deathFunction()
 
 void AEnemyMinionAI::destroyFunction()
 {
-	auto Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if(IsValid(Player))
+	if (fMinionHealth <= 0)
 	{
-		Player->EnemyToKill--;
+		auto Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+		if (IsValid(Player))
+		{
+			Player->EnemyToKill--;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("Enemy Destroyed!"));
+		if (MinionDeathParticle)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MinionDeathParticle, GetActorLocation(), GetActorRotation(), true, EPSCPoolMethod::None, true);
+		}
+		this->SpawnMana(GetActorLocation(), GetActorRotation());
+		this->Destroy();
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Enemy Destroyed!"));
-	if(MinionDeathParticle)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MinionDeathParticle, GetActorLocation(), GetActorRotation(), true, EPSCPoolMethod::None, true);
+	else
+	{   //Spawns MinionDamagedParticle
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MinionDamagedParticle, GetActorLocation(), GetActorRotation(), true, EPSCPoolMethod::None, true); 
 	}
-	this->SpawnMana(GetActorLocation(), GetActorRotation());
-	this->Destroy();
 }
 
 void AEnemyMinionAI::SpawnMana(FVector Loc, FRotator Rot)
