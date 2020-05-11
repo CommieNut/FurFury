@@ -11,6 +11,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Main.h"
 
 // Sets default values
 AEnemyMinionAI::AEnemyMinionAI()
@@ -61,6 +62,12 @@ void AEnemyMinionAI::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Locatio
 	NewLookAt.Pitch = 0.0f; //Resets Pitch and Roll. The enemy is now unable to rotate in these directions.
 	NewLookAt.Roll = 0.0f;
 	SetActorRotation(NewLookAt); // rotates the enemy towards the player.
+
+	AMain* obj = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (IsValid(obj))
+	{
+		obj->PlayerHealth -= 1;
+	}
 }
 
 void AEnemyMinionAI::deathFunction()
