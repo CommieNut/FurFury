@@ -9,6 +9,8 @@
 #include "Components/SphereComponent.h"
 #include "ConstructorHelpers.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Perception/PawnSensingComponent.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 AEnemyMinionAI::AEnemyMinionAI()
@@ -23,7 +25,34 @@ AEnemyMinionAI::AEnemyMinionAI()
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> Particle(TEXT("ParticleSystem'/Game/InfinityBladeEffects/Effects/FX_Monsters/FX_Monster_Gruntling/Bomber/P_FireBombExplosion.P_FireBombExplosion'"));
 	MinionDeathParticle = Particle.Object;
 
+	PawnSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
 
+	PawnSensing->OnSeePawn.AddDynamic(this, &AEnemyMinionAI::OnPawnSeen);
+	PawnSensing->OnHearNoise.AddDynamic(this, &AEnemyMinionAI::OnNoiseHeard);
+}
+void AEnemyMinionAI::OnPawnSeen(APawn* SeenPawn)
+{
+	if (SeenPawn == nullptr)
+	{
+		return;
+	}
+	//visual test
+	DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 32.0f, 12, FColor::Red, false, 10.0f);
+
+	FVector Direction = SeenPawn->GetActorLocation() - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
+	Direction.Normalize();
+
+	FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
+	NewLookAt.Pitch = 0.0f; //Resets Pitch and Roll. The enemy is now unable to rotate in these directions.
+	NewLookAt.Roll = 0.0f;
+	SetActorRotation(NewLookAt);
+	AddActorLocalOffset(FVector(10.f, 0.f, 0.f));
+}
+
+void AEnemyMinionAI::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume)
+{
+	//visual test
+	DrawDebugSphere(GetWorld(), Location, 32.0f, 12, FColor::Green, false, 10.0f);
 }
 
 void AEnemyMinionAI::deathFunction()

@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Main.generated.h"
 
+class UPawnNoiseEmitterComponent;
+
 UENUM(BlueprintType, Category = "Player Animation")
 enum class animationStates : uint8 {
 	idle,
@@ -14,7 +16,6 @@ enum class animationStates : uint8 {
 	dying,
 	dead
 };
-
 
 UCLASS()
 class FURFURY_API AMain : public ACharacter
@@ -66,6 +67,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
+	UPawnNoiseEmitterComponent* NoiseEmitterComp;
 
 public:
 	// Called every frame
