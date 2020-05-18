@@ -44,7 +44,7 @@ public:
 	float BaseLookUpRate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	int EnemyToKill = 50;
+	int EnemyKilled = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	int EnemySpawned = 50;

@@ -61,7 +61,7 @@ void AMain::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMain::OnBeginOverlap);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMain::OnBeginOverlap); // A general overlap function. Mainly used to pick up mana. 
 }
 
 
@@ -76,7 +76,7 @@ void AMain::Tick(float DeltaTime)
 		states = animationStates::idle;
 	}
 
-	if(PlayerHealth <= 0)
+	if(PlayerHealth <= 0) // Very very basic death if-statement, if the player health is less than or equal to 0, destroy this actor.
 	{
 		this->Destroy();
 	}
@@ -87,18 +87,18 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	check(PlayerInputComponent);
-
+	// General binds.
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMain::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMain::StopJumping);
 	PlayerInputComponent->BindAction("Melee", IE_Pressed, this, &AMain::MeleeAttack);
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
-	PlayerInputComponent->BindAction("Heal", IE_Pressed, this, &AMain::HealAbility);
-	PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt);
+	PlayerInputComponent->BindAction("Heal", IE_Pressed, this, &AMain::HealAbility); // This is a permanent ability, needs some tweaking.
+	PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt); // This is a temporary ability used for testing. will be disabled, however converted to a cheat instead.
 }
 
 
-void AMain::MoveForward(float Value)
+void AMain::MoveForward(float Value) // Basic movement code for forward and backwards.
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
@@ -110,7 +110,7 @@ void AMain::MoveForward(float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
-void AMain::MoveRight(float Value)
+void AMain::MoveRight(float Value) // Basic movement code for left and right.
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
@@ -127,13 +127,13 @@ void AMain::TurnAtRate(float Rate)
 {
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
-void AMain::LookUpAtRate(float Rate)
+void AMain::LookUpAtRate(float Rate) // should be removed, not necessary as we do not really use controller input.
 {
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 void AMain::MeleeAttack()
 {
-	states = animationStates::attacking;
+	states = animationStates::attacking; //Animation state, changes to attacking on activation of this function. Does not loop.
 	UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
 	TArray<AActor*> TempActors; // Make an array to contain colliding actors
 	MeleeHitbox->GetOverlappingActors(TempActors, AEnemyMinionAI::StaticClass()); // Checks for colliding actors, if true then add to the temporary array. A filter is added to add enemies only.
@@ -150,18 +150,18 @@ void AMain::MeleeAttack()
 
 void AMain::HealAbility()
 {
-	if(PlayerHealth < 100 && PlayerStamina >= 25)
+	if(PlayerHealth < 100 && PlayerStamina >= 25) // Simple heal ability, if player health is less that 100 and player stamina is more than or equal to 25
 	{
-		PlayerHealth += 25;
-		PlayerStamina -= 25;
-		if(PlayerHealth > 100)
+		PlayerHealth += 25; //add 25 health (will need tweaking)
+		PlayerStamina -= 25; //remove 25 stamina (will need tweaking)
+		if(PlayerHealth > 100) // If player is over 100 HP (Health points)
 		{
-			PlayerHealth = 100;
+			PlayerHealth = 100; // Set player HP back to 100. (to avoid players abusing this ability to basically have god mode)
 		}
 	}
 }
 
-void AMain::Hurt()
+void AMain::Hurt() // Very simple function only made for testing. (REMOVE)
 {
 	PlayerHealth -= 25;
 }

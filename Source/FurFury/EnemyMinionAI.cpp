@@ -37,7 +37,7 @@ void AEnemyMinionAI::destroyFunction()
 	auto Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if(IsValid(Player))
 	{
-		Player->EnemyToKill--;
+		Player->EnemyKilled++;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Enemy Destroyed!"));
 	if(MinionDeathParticle)

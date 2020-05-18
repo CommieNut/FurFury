@@ -25,7 +25,6 @@ void AEnemySpawner::BeginPlay()
 	Super::BeginPlay();
 	spawn1to5delay = FMath::FRandRange(spawndelaylowernumber, spawndelayhighernumber);
 	GetWorldTimerManager().SetTimer(spawntimer, this, &AEnemySpawner::spawn, spawn1to5delay, false);
-//	spawn2();
 	spawn();
 }
 
