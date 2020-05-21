@@ -161,6 +161,7 @@ void AMain::HealAbility()
 		if(PlayerHealth > 100)
 		{
 			PlayerHealth = 100;
+			PlayerHealth = 100;
 		}
 	}
 }

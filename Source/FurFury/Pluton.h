@@ -24,10 +24,23 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PlutonPawnSensing;
 
+	/** True if Pluton can walk, false if not */
+	bool bPlutonCanWalk = false;
+
+	bool bTEST = true;
+
+	/** Handles the delay before Pluton can walk */
+	FTimerHandle PlutonWalkDelayHandle;
+
+	void ResetWalk();
+
 	UFUNCTION()
 	void OnPawnSeen(APawn* SeenPawn);
+
 	UFUNCTION()
 	void OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume);
+
+	void Walk(APawn* SeenPawn, float DistanceToPawn);
 
 public:	
 	// Called every frame
