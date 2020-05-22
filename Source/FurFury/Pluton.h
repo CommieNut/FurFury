@@ -26,8 +26,11 @@ protected:
 
 	/** True if Pluton can walk, false if not */
 	bool bPlutonCanWalk = false;
+	bool bPlutonCanAttack = true;
 
-	bool bTEST = true;
+	float RandomNumber = 0;
+
+	float Swipes = 0;
 
 	/** Handles the delay before Pluton can walk */
 	FTimerHandle PlutonWalkDelayHandle;
@@ -40,7 +43,11 @@ protected:
 	UFUNCTION()
 	void OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume);
 
-	void Walk(APawn* SeenPawn, float DistanceToPawn);
+	void Walk(APawn* SeenPawn, float DistanceToPawn, float WalkSpeed);
+
+	void Headbutt(float DistanceToPawn);
+
+	void DoubleSwipe(float DistanceToPawn);
 
 public:	
 	// Called every frame
