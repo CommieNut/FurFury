@@ -17,15 +17,21 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
 		class UBoxComponent* spawnbox;
+	
 	UPROPERTY(EditAnywhere, Category = "toSpawn")
 		TSubclassOf<class AEnemyMinionAI> tospawn;
-	UFUNCTION(BlueprintCallable)
-		void spawn();
-	//UFUNCTION(BlueprintCallable)
-		//void spawn2();
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "SpawnerIdentifiers")
+		int IDindex = 0; //Utilized by developers to order the spawners in the desired order. (Important for the spawner handler)
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "SpawnerManipulators")
+		bool spawnerActive = false;
+	
 	UPROPERTY(EditAnywhere, category = "Spawning")
 		AEnemyMinionAI* getdestroyed;
+
+		UFUNCTION(BlueprintCallable)
+		void spawn();
 
 
 	//maybe crashes when on deltatime.
