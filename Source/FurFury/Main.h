@@ -51,10 +51,10 @@ public:
 	int EnemySpawned = 50;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	int PlayerHealth = 100.0f;
+	int PlayerHealth = 100;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	int PlayerStamina = 100.0f;
+	int PlayerStamina = 100;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	bool bIsRunning = false;
