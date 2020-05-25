@@ -15,6 +15,23 @@ public:
 	// Sets default values for this actor's properties
 	AProjectile();
 
+	UPROPERTY(VisibleAnywhere)
+		class UProjectileMovementComponent * projectile;
+
+	UPROPERTY(VisibleAnywhere, Category = "Collision")
+		class USphereComponent* ColliderComponent;
+
+	UPROPERTY(VisibleAnywhere, Category="Projectile Mesh")
+		class UStaticMeshComponent* ProjectileMesh;
+
+	UPROPERTY(VisibleAnywhere, Category = "Projectile Particles")
+		class UParticleSystemComponent * ExplosionParticle;
+
+	UPROPERTY(VisibleAnywhere, Category = "Projectile Particles")
+		class UParticleSystemComponent* ProjectileTrail;
+	
+	UFUNCTION()
+		void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

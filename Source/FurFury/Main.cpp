@@ -10,6 +10,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Pickup_Stamina.h"
 #include "Components/PawnNoiseEmitterComponent.h"
+#include "Projectile.h"
 
 // Sets default values
 AMain::AMain()
@@ -98,6 +99,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
 	PlayerInputComponent->BindAction("Heal", IE_Pressed, this, &AMain::HealAbility); // This is a permanent ability, needs some tweaking.
 	PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt); // This is a temporary ability used for testing. will be disabled, however converted to a cheat instead.
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMain::RangedAttack);;
 }
 
 
@@ -146,12 +148,18 @@ void AMain::MeleeAttack()
 		auto enemyActor = Cast<AEnemyMinionAI>(TempActors[i]);
 		if(IsValid(enemyActor))
 		{
-			enemyActor->fMinionHealth -= 50;
+			enemyActor->minionHealth -= 50;
 			enemyActor->deathFunction();
 		}
 	}
 }
-
+void AMain::RangedAttack()
+{
+	FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector()*200.f);
+	if(projectile){
+		GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
+	}
+}
 void AMain::HealAbility()
 {
 	if(PlayerHealth < 100 && PlayerStamina >= 25) // Simple heal ability, if player health is less that 100 and player stamina is more than or equal to 25
@@ -164,11 +172,12 @@ void AMain::HealAbility()
 		}
 	}
 }
-
 void AMain::Hurt() // Very simple function only made for testing. (REMOVE)
 {
 	PlayerHealth -= 25.f;
 }
+
+
 
 void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
