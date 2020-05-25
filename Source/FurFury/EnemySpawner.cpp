@@ -14,6 +14,9 @@ AEnemySpawner::AEnemySpawner()
 
 	spawnbox = CreateDefaultSubobject<UBoxComponent>(TEXT("Spawnbox"));
 	RootComponent = spawnbox;
+
+	spawndelaylowernumber = 10.0f;
+	spawndelayhighernumber = 20.0f;
 }
 
 // Called when the game starts or when spawned
@@ -33,12 +36,33 @@ void AEnemySpawner::Tick(float DeltaTime)
 }
 //changed to this code due to bug.
 void AEnemySpawner::spawn() {
+	FVector location = GetActorLocation();
+	int counter = 0;
+	int currentamount = 3;
 	UWorld* world = GetWorld();
-	FRotator rotatingside;
-	FVector spawnlocation = this->spawnbox->GetComponentLocation();
-	FActorSpawnParameters spawningparameter;
-	spawningparameter.Owner = this;
 	if (world) {
+		for (int counter = 0; counter < 2; counter++) {
+		}
+		if (counter <= currentamount) {
+			FActorSpawnParameters spawningparameter;
+			spawningparameter.Owner = this;
+			FRotator rotatingside;
+			FVector spawnlocation = this->spawnbox->GetComponentLocation();
 			world->SpawnActor<AEnemyMinionAI>(tospawn, spawnlocation, rotatingside, spawningparameter);
+			GetWorldTimerManager().SetTimer(spawntimer, this, &AEnemySpawner::spawn, spawn1to5delay, false);
+			counter++;
+		}
+		else
+
+		{ //need more fix on this part, buggy.
+			(counter >= currentamount); {
+				delay;
+				if (!getdestroyed->Destroy()) {
+					counter--;
+				}
+				
+			}
+		}
+
 	}
 }
