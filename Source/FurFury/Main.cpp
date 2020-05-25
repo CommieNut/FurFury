@@ -11,6 +11,7 @@
 #include "Pickup_Stamina.h"
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "Projectile.h"
+#include "TimerManager.h"
 
 // Sets default values
 AMain::AMain()
@@ -58,6 +59,11 @@ AMain::AMain()
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Assume immediate control of character without having to set it up in project settings
 	
 	NoiseEmitterComp = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("NoiseEmitter")); //Component that makes noice. used by AI's to detect FurFur
+}
+
+void AMain::SetRangedCooldown()
+{
+	RangedCooldown = false;
 }
 
 // Called when the game starts or when spawned
@@ -149,7 +155,7 @@ void AMain::MeleeAttack()
 		if(IsValid(enemyActor))
 		{
 			enemyActor->minionHealth -= 50;
-			enemyActor->deathFunction();
+//			enemyActor->deathFunction();
 		}
 	}
 }
@@ -157,7 +163,14 @@ void AMain::RangedAttack()
 {
 	FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector()*200.f);
 	if(projectile){
-		GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
+		if(PlayerStamina >= 5 && RangedCooldown == false)
+		{
+			RangedCooldown = true;
+			PlayerStamina -= 5;
+			GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
+			//GetWorld()->GetTimerManager().SetTimer(FTHandle, this, &AMain::RangedCooldown, CoolDownTime, false);
+		}
+		
 	}
 }
 void AMain::HealAbility()

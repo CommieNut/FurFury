@@ -6,6 +6,10 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "EnemyMinionAI.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Pluton.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -23,16 +27,11 @@ AProjectile::AProjectile()
 	SetRootComponent(ColliderComponent);
 	ColliderComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnBeginOverlap);
 
-	
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMesh"));
 	ProjectileMesh->SetupAttachment(ColliderComponent);
 
-	
-	ExplosionParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Explosion Particle"));
-	ExplosionParticle->SetupAttachment(ColliderComponent);
-	
-	ProjectileTrail = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Trail Particle"));
-	ExplosionParticle->SetupAttachment(ColliderComponent);
+	ProjectileTrail = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ProjectileTrail"));
+	ProjectileTrail->SetupAttachment(ColliderComponent);
 }
 
 // Called when the game starts or when spawned
@@ -51,9 +50,30 @@ void AProjectile::Tick(float DeltaTime)
 
 void AProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
+	TArray<AActor*> TempActors; // Make an array to contain colliding actors
+	ColliderComponent->GetOverlappingActors(TempActors, APawn::StaticClass());
 	if(ExplosionParticle)
 	{
-		ExplosionParticle->Activate();
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticle, GetActorLocation(), GetActorRotation(), true, EPSCPoolMethod::None, true);
+	}
+	for (size_t i = 0; i < TempActors.Num(); i++) // runs through the array
+	{
+		//TempActors[i]->Destroy(); // Destroy actor in that specefic array index
+		auto enemyActor1 = Cast<AEnemyMinionAI>(TempActors[i]);
+		auto enemyActor2 = Cast<APluton>(TempActors[i]);
+		auto enemyActor3 = Cast<AMain>(TempActors[i]);
+		if (IsValid(enemyActor1))
+		{
+			enemyActor1->minionHealth -= 50;
+			//			enemyActor->deathFunction();
+		}else if(IsValid(enemyActor2))
+		{
+			enemyActor2->Destroy();
+		}else if(IsValid(enemyActor3))
+		{
+			enemyActor3->PlayerHealth -= 25;
+		}
 	}
 	this->Destroy();
 }

@@ -65,7 +65,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Player Ranged Attack Properties")
 	TSubclassOf<class AProjectile> projectile;
 
+	FTimerHandle FTHandle;
+	bool RangedCooldown = false;
+	float CoolDownTime = 1.f;
 
+	UFUNCTION(BlueprintCallable, Category= "Player Ranged Attack Properties")
+		void SetRangedCooldown();
 
 protected:
 	// Called when the game starts or when spawned
