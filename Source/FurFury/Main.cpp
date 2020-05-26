@@ -64,7 +64,7 @@ AMain::AMain()
 	NoiseEmitterComp = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("NoiseEmitter")); //Component that makes noice. used by AI's to detect FurFur
 }
 
-void AMain::SetRangedCooldown()
+void AMain::ResetRangedCooldown()
 {
 	RangedCooldown = false;
 }
@@ -171,7 +171,7 @@ void AMain::RangedAttack()
 			RangedCooldown = true;
 			PlayerStamina -= 5;
 			GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
-			//GetWorld()->GetTimerManager().SetTimer(FTHandle, this, &AMain::RangedCooldown, CoolDownTime, false);
+			GetWorld()->GetTimerManager().SetTimer(FTHandle, this, &AMain::ResetRangedCooldown, CoolDownTime, false);
 		}
 		
 	}

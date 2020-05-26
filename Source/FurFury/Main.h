@@ -73,7 +73,7 @@ public:
 >>>>>>> parent of afc2abe... Ranged Attack Implemented, Broken.
 
 	UFUNCTION(BlueprintCallable, Category= "Player Ranged Attack Properties")
-		void SetRangedCooldown();
+		void ResetRangedCooldown();
 
 protected:
 	// Called when the game starts or when spawned
