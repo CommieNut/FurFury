@@ -15,7 +15,6 @@ public:
 	// Sets default values for this actor's properties
 	AProjectile();
 
-<<<<<<< HEAD
 	UPROPERTY(VisibleAnywhere)
 		class UProjectileMovementComponent * projectile;
 
@@ -33,8 +32,6 @@ public:
 	
 	UFUNCTION()
 		void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-=======
->>>>>>> parent of afc2abe... Ranged Attack Implemented, Broken.
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

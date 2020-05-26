@@ -62,15 +62,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Player Animation")
 	animationStates states;
 
-<<<<<<< HEAD
 	UPROPERTY(EditAnywhere, Category = "Player Ranged Attack Properties")
 	TSubclassOf<class AProjectile> projectile;
 
 	FTimerHandle FTHandle;
 	bool RangedCooldown = false;
 	float CoolDownTime = 1.f;
-=======
->>>>>>> parent of afc2abe... Ranged Attack Implemented, Broken.
 
 	UFUNCTION(BlueprintCallable, Category= "Player Ranged Attack Properties")
 		void ResetRangedCooldown();
@@ -109,6 +106,8 @@ public:
 
 	void HealAbility();
 	void Hurt();
+
+	void RangedAttack();
 
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

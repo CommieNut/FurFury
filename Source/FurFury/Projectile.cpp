@@ -2,7 +2,6 @@
 
 
 #include "Projectile.h"
-<<<<<<< HEAD
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -11,8 +10,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Pluton.h"
-=======
->>>>>>> parent of afc2abe... Ranged Attack Implemented, Broken.
 
 // Sets default values
 AProjectile::AProjectile()
@@ -20,7 +17,6 @@ AProjectile::AProjectile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-<<<<<<< HEAD
 	projectile = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile"));
 	projectile->InitialSpeed = 1000.f;
 	projectile->MaxSpeed = 1000.f;
@@ -36,8 +32,6 @@ AProjectile::AProjectile()
 
 	ProjectileTrail = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ProjectileTrail"));
 	ProjectileTrail->SetupAttachment(ColliderComponent);
-=======
->>>>>>> parent of afc2abe... Ranged Attack Implemented, Broken.
 }
 
 // Called when the game starts or when spawned
@@ -54,7 +48,6 @@ void AProjectile::Tick(float DeltaTime)
 
 }
 
-<<<<<<< HEAD
 void AProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
@@ -84,5 +77,3 @@ void AProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	}
 	this->Destroy();
 }
-=======
->>>>>>> parent of afc2abe... Ranged Attack Implemented, Broken.

@@ -37,7 +37,7 @@ public:
 	TSubclassOf<AActor> ActorToSpawn;
 
 	UPROPERTY(EditAnywhere, Category = "Minion Health")
-	float fMinionHealth = 100.f;
+	int minionHealth = 100.f;
 
 	//On Death Functions
 	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
