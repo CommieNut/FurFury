@@ -70,7 +70,7 @@ public:
 	float CoolDownTime = 1.f;
 
 	UFUNCTION(BlueprintCallable, Category= "Player Ranged Attack Properties")
-		void ResetRangedCooldown();
+		void SetRangedCooldown();
 
 protected:
 	// Called when the game starts or when spawned
