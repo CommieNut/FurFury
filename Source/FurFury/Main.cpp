@@ -54,7 +54,7 @@ AMain::AMain()
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 840.f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 650.f;
-	GetCharacterMovement()->AirControl = 0.2f; // (Kanskje burde fjerne air control... -Mo 19.03.2020)
+	GetCharacterMovement()->AirControl = 0.4f;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Assume immediate control of character without having to set it up in project settings
 	
@@ -79,16 +79,21 @@ void AMain::BeginPlay()
 void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (GetInputAxisValue("MoveForward") != 0 || GetInputAxisValue("MoveRight") != 0) {
-		states = animationStates::running;
+	if (bPlayerDead != true)
+	{
+		if (GetInputAxisValue("MoveForward") != 0 || GetInputAxisValue("MoveRight") != 0) {
+			states = animationStates::running;
+		}else{
+			states = animationStates::idle;
+		}
 	}
-	else {
-		states = animationStates::idle;
-	}
+
 
 	if(PlayerHealth <= 0) // Very very basic death if-statement, if the player health is less than or equal to 0, destroy this actor.
 	{
-		this->Destroy();
+		//this->Destroy();
+		GetCharacterMovement()->DisableMovement();
+		bPlayerDead = true;
 	}
 }
 
@@ -144,38 +149,45 @@ void AMain::LookUpAtRate(float Rate) // should be removed, not necessary as we d
 }
 void AMain::MeleeAttack()
 {
-	states = animationStates::attacking; //Animation state, changes to attacking on activation of this function. Does not loop.
-	UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
-	TArray<AActor*> TempActors; // Make an array to contain colliding actors
-	MeleeHitbox->GetOverlappingActors(TempActors, AEnemyMinionAI::StaticClass()); // Checks for colliding actors, if true then add to the temporary array. A filter is added to add enemies only.
-	for (size_t i = 0; i < TempActors.Num(); i++) // runs through the array
+	if(bPlayerDead != true)
 	{
-		//TempActors[i]->Destroy(); // Destroy actor in that specefic array index
-		auto enemyActor = Cast<AEnemyMinionAI>(TempActors[i]);
-		if(IsValid(enemyActor))
+		states = animationStates::attacking; //Animation state, changes to attacking on activation of this function. Does not loop.
+		UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
+		TArray<AActor*> TempActors; // Make an array to contain colliding actors
+		MeleeHitbox->GetOverlappingActors(TempActors, AEnemyMinionAI::StaticClass()); // Checks for colliding actors, if true then add to the temporary array. A filter is added to add enemies only.
+		for (size_t i = 0; i < TempActors.Num(); i++) // runs through the array
 		{
-			enemyActor->minionHealth -= 50;
-//			enemyActor->deathFunction();
-		}
+			//TempActors[i]->Destroy(); // Destroy actor in that specefic array index
+			auto enemyActor = Cast<AEnemyMinionAI>(TempActors[i]);
+			if(IsValid(enemyActor))
+			{
+				enemyActor->minionHealth -= 50;
+	//			enemyActor->deathFunction();/
+			}
+		}	
 	}
+
 }
 void AMain::RangedAttack()
 {
-	FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector()*200.f);
-	if(projectile){
-		if(PlayerStamina >= 5 && RangedCooldown == false)
-		{
-			RangedCooldown = true;
-			PlayerStamina -= 5;
-			GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
-			GetWorld()->GetTimerManager().SetTimer(FTHandle, this, &AMain::ResetRangedCooldown, CoolDownTime, false);
+	if (bPlayerDead != true)
+	{
+		FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector()*200.f);
+		if(projectile){
+			if(PlayerStamina >= 5 && RangedCooldown == false)
+			{
+				RangedCooldown = true;
+				PlayerStamina -= 5;
+				GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
+				GetWorld()->GetTimerManager().SetTimer(FTHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
+			}
+			
 		}
-		
 	}
 }
 void AMain::HealAbility()
 {
-	if(PlayerHealth < 100 && PlayerStamina >= 25) // Simple heal ability, if player health is less that 100 and player stamina is more than or equal to 25
+	if(PlayerHealth < 100 && PlayerStamina >= 25 && bPlayerDead != true) // Simple heal ability, if player health is less that 100 and player stamina is more than or equal to 25
 	{
 		PlayerHealth += 25; //add 25 health (will need tweaking)
 		PlayerStamina -= 25; //remove 25 stamina (will need tweaking)

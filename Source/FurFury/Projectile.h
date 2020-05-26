@@ -27,7 +27,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Projectile Particles")
 		class UParticleSystem * ExplosionParticle;
 
-	UPROPERTY(EditAnywhere, Category = "Projectile Particles")
+	UPROPERTY(VisibleAnywhere, Category = "Projectile Particles")
 		class UParticleSystemComponent * ProjectileTrail;
 	
 	UFUNCTION()

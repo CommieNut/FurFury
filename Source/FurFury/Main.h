@@ -67,10 +67,15 @@ public:
 
 	FTimerHandle FTHandle;
 	bool RangedCooldown = false;
-	float CoolDownTime = 1.f;
+
+	UPROPERTY(EditAnywhere, Category = "Player Ranged Attack Properties")
+	float FCoolDownTime = 0.5f;
 
 	UFUNCTION(BlueprintCallable, Category= "Player Ranged Attack Properties")
-		void ResetRangedCooldown();
+	void ResetRangedCooldown();
+
+	UPROPERTY(BlueprintReadWrite, Category = "Player Variables")
+	bool bPlayerDead;
 
 protected:
 	// Called when the game starts or when spawned

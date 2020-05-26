@@ -27,6 +27,11 @@ void ASpawner_Handler::BeginPlay()
 	for(int i = 0; i < InWorldSpawners.Num(); i++)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Info (In World Spawners) = %s"), *InWorldSpawners[i]->GetName());
+		auto tempSpawner = Cast<AEnemySpawner>(InWorldSpawners[i]);
+		if(IsValid(tempSpawner))
+		{
+			CastInWorldSpawners.Add(tempSpawner);
+		}
 	}
 }
 
