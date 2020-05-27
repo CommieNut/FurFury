@@ -28,13 +28,13 @@ protected:
 	bool bPlutonCanWalk = false;
 	bool bPlutonCanAttack = true;
 
-	float RandomNumber = 0;
+	int RandomAttack = 0;
 
 	float Swipes = 0;
 
-	const float HeadbuttC = 1; 
-	const float DoubleSwipeC = 2;
-	const float ThrowRockC = 3;
+	static constexpr int  HeadbuttC = 1;
+	static constexpr int  DoubleSwipeC = 2;
+	static constexpr int  ThrowRockC = 3;
 
 	/** Handles the delay before Pluton can walk */
 	FTimerHandle PlutonWalkDelayHandle;

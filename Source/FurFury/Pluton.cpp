@@ -55,12 +55,14 @@ void APluton::OnPawnSeen(APawn* SeenPawn)
 	XYDistance = sqrt(pow(XDistance, 2) + pow(YDistance, 2)); //Pythagoras theorem, to calculate distance between player and minion (XYDistance)
 
 	//Randomly decides Pluton attack.
-	if (RandomNumber == 0 && bPlutonCanAttack == true){
-		RandomNumber = rand() % 3 + 1;
-		UE_LOG(LogTemp, Warning, TEXT("Attack: %f"), RandomNumber);
+	if (RandomAttack == 0 && bPlutonCanAttack == true){
+		RandomAttack = rand() % 3 + 1; // bytt tilbake til %3 + 1
+		UE_LOG(LogTemp, Warning, TEXT("Attack: %d"), RandomAttack);
 	}
 
-	if (RandomNumber == HeadbuttC) { // Charged Headbutt
+	switch (RandomAttack) {
+
+	case HeadbuttC: // 1
 		if (bPlutonCanWalk) {
 			GetWorldTimerManager().ClearTimer(PlutonWalkDelayHandle);
 			Walk(SeenPawn, XYDistance, 20);
@@ -69,30 +71,29 @@ void APluton::OnPawnSeen(APawn* SeenPawn)
 		else if (!GetWorldTimerManager().IsTimerActive(PlutonWalkDelayHandle)) {
 			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 1.0f, false);
 		}
-	}
-	else if(RandomNumber == DoubleSwipeC) //Double Swipe
-	{ 
+		break;
+
+	case DoubleSwipeC: // 2
 		if (bPlutonCanWalk) {
 			GetWorldTimerManager().ClearTimer(PlutonWalkDelayHandle);
 			Walk(SeenPawn, XYDistance, 12);
 			DoubleSwipe(XYDistance);
 		}
-
 		else if (!GetWorldTimerManager().IsTimerActive(PlutonWalkDelayHandle)) {
 			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 0.3f, false);
 		}
-	}
-	else if (RandomNumber == ThrowRockC) { //Throw Rock
+		break;
+
+	case ThrowRockC: // 3
 		if (bPlutonCanWalk) {
 			GetWorldTimerManager().ClearTimer(PlutonWalkDelayHandle);
 			ThrowRock(XYDistance);
 		}
-
 		else if (!GetWorldTimerManager().IsTimerActive(PlutonWalkDelayHandle)) {
 			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 2.0f, false);
 		}
+		break;
 	}
-
 	
 }
 
@@ -150,7 +151,7 @@ void APluton::Headbutt(float DistanceToPawn)
 			UE_LOG(LogTemp, Warning, TEXT("Headbutt Hit"));
 			Player->PlayerHealth -= 25.0f;
 		}
-		RandomNumber = 0;
+		RandomAttack = 0;
 		GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 3.0f, false);
 	}
 }
@@ -158,7 +159,7 @@ void APluton::Headbutt(float DistanceToPawn)
 void APluton::DoubleSwipe(float DistanceToPawn)
 {
 	if(Swipes >= 2){
-		RandomNumber = 0;
+		RandomAttack = 0;
 		Swipes = 0;
 		bPlutonCanWalk = false;
 		GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 3.0f, false);
@@ -194,7 +195,7 @@ void APluton::ThrowRock(float DistanceToPawn)
 		UE_LOG(LogTemp, Warning, TEXT("Rock throw hit."));
 		Player->PlayerHealth -= 25.0f;
 	}
-	RandomNumber = 0;
+	RandomAttack = 0;
 	GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 3.0f, false);
 }
 

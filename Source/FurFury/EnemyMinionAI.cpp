@@ -76,7 +76,6 @@ void AEnemyMinionAI::OnPawnSeen(APawn* SeenPawn)
 		}
 
 		XYDistance = sqrt(pow(XDistance, 2) + pow(YDistance, 2)); //Pythagoras theorem, to calculate distance between player and minion (XYDistance)
-		UE_LOG(LogTemp, Warning, TEXT("Distance: %f,"), XYDistance);
 
 		AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 		if (IsValid(Player) && XYDistance <= 100)
