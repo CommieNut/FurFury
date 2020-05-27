@@ -12,6 +12,8 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "Projectile.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "Pluton.h"
 
 // Sets default values
 AMain::AMain()
@@ -167,6 +169,9 @@ void AMain::MeleeAttack()
 	 			enemyActor->deathFunction();
 			}
 		}	
+		// HELP. cast to APluton to access int PlutonHealth
+		
+		//Pluton->PlutonHealth -= 10;
 	}
 
 }
@@ -201,19 +206,19 @@ void AMain::HealAbility()
 }
 void AMain::Hurt() // Very simple function only made for testing. (REMOVE)
 {
-	PlayerHealth -= 25.f;
+	PlayerHealth -= 25;
 }
 
 
 
 void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Stamina Collide"));
 	//Player collides with a potential stamina
 	//Casting to check if it is a stamina actor
 	APickup_Stamina* ActorCheck = Cast<APickup_Stamina>(OtherActor);
 		if (IsValid(ActorCheck))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Stamina Collide"));
 			if(PlayerStamina <= 75)
 			{
 				PlayerStamina += 25;

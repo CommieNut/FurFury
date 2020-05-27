@@ -106,7 +106,7 @@ void AEnemyMinionAI::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Locatio
 	AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (IsValid(Player))
 	{
-		Player->PlayerHealth -= 0.5;
+		Player->PlayerHealth -= 1;
 	}
 }
 

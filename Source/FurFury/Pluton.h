@@ -28,11 +28,14 @@ protected:
 	bool bPlutonCanWalk = false;
 	bool bPlutonCanAttack = true;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pluton Variables")
+	int PlutonHealth = 1000;
+
 	int RandomAttack = 0;
 
 	float Swipes = 0;
 
-	static constexpr int  HeadbuttC = 1;
+	static constexpr int  HeadbuttC = 1;	// Static connstexpr sets the value at complation.
 	static constexpr int  DoubleSwipeC = 2;
 	static constexpr int  ThrowRockC = 3;
 

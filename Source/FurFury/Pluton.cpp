@@ -56,7 +56,7 @@ void APluton::OnPawnSeen(APawn* SeenPawn)
 
 	//Randomly decides Pluton attack.
 	if (RandomAttack == 0 && bPlutonCanAttack == true){
-		RandomAttack = rand() % 3 + 1; // bytt tilbake til %3 + 1
+		RandomAttack = rand() % 3 + 1;//reset to 3 + 1 
 		UE_LOG(LogTemp, Warning, TEXT("Attack: %d"), RandomAttack);
 	}
 
@@ -69,7 +69,7 @@ void APluton::OnPawnSeen(APawn* SeenPawn)
 			Headbutt(XYDistance);
 		}
 		else if (!GetWorldTimerManager().IsTimerActive(PlutonWalkDelayHandle)) {
-			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 1.0f, false);
+			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 1.5f, false);
 		}
 		break;
 
@@ -87,10 +87,11 @@ void APluton::OnPawnSeen(APawn* SeenPawn)
 	case ThrowRockC: // 3
 		if (bPlutonCanWalk) {
 			GetWorldTimerManager().ClearTimer(PlutonWalkDelayHandle);
+			Walk(SeenPawn, XYDistance, 0);
 			ThrowRock(XYDistance);
 		}
 		else if (!GetWorldTimerManager().IsTimerActive(PlutonWalkDelayHandle)) {
-			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 2.0f, false);
+			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 1.5f, false);
 		}
 		break;
 	}
@@ -126,8 +127,8 @@ void APluton::Walk(APawn* SeenPawn, float XYDistance, float WalkSpeed)
 		NewLookAt.Pitch = 0.0f; //Resets Pitch and Roll. The enemy is now unable to rotate in these directions.
 		NewLookAt.Roll = 0.0f;
 		SetActorRotation(NewLookAt); // rotates the enemy towards the player.
-
-		if (XYDistance >= 300) {
+		
+		if (XYDistance >= 300 && RandomAttack != ThrowRockC) {
 			AddActorLocalOffset(FVector(WalkSpeed, 0.f, 0.f)); //Moves the character in Plutons X-direction.
 		}
 		else {
@@ -141,7 +142,6 @@ void APluton::Headbutt(float DistanceToPawn)
 		/*CHANGE ANIMATION
 
 		ENABLE ANIM;
-		Set timer to turn anim off?
 
 		*/
 
@@ -149,10 +149,10 @@ void APluton::Headbutt(float DistanceToPawn)
 		if (IsValid(Player))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Headbutt Hit"));
-			Player->PlayerHealth -= 25.0f;
+			Player->PlayerHealth -= 20;
 		}
 		RandomAttack = 0;
-		GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 3.0f, false);
+		GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 2.0f, false);
 	}
 }
 
@@ -162,7 +162,7 @@ void APluton::DoubleSwipe(float DistanceToPawn)
 		RandomAttack = 0;
 		Swipes = 0;
 		bPlutonCanWalk = false;
-		GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 3.0f, false);
+		GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 2.0f, false);
 	}
 	else if (DistanceToPawn <= 300 && bPlutonCanAttack == true) {
 		Swipes++;
@@ -170,13 +170,12 @@ void APluton::DoubleSwipe(float DistanceToPawn)
 		/*CHANGE ANIMATION
 		 
 		ENABLE ANIM;
-		Set timer to turn anim off?
 
 		*/
 		AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 		if (IsValid(Player))
 		{
-			Player->PlayerHealth -= 25.0f;
+			Player->PlayerHealth -= 15;
 		}
 		bPlutonCanAttack = false;
 		GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 0.5f, false);
@@ -193,17 +192,16 @@ void APluton::ThrowRock(float DistanceToPawn)
 	if (IsValid(Player))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Rock throw hit."));
-		Player->PlayerHealth -= 25.0f;
+		Player->PlayerHealth -= 20;
 	}
 	RandomAttack = 0;
-	GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 3.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 2.0f, false);
 }
 
 // Called every frame
 void APluton::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 
