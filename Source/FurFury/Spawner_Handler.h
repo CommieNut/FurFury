@@ -18,14 +18,23 @@ public:
 		class USphereComponent* InvisibleShere;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ActiveSpawners") // This is used to contain all spawners instanced in the world. this runs on begin play function.
-		TArray<AActor*> InWorldSpawners;
+		TArray<AActor*> InWorldSpawners;	// Do not mess around with this.
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ActiveSpawners")
+		TArray<AActor*> CastInWorldSpawners; // Do not mess around with this.
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Spawner Options")
-		uint8 TotalEnemiesToSpawn;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Spawner Options")
-		uint8 EnemiesToSpawn;
+		bool bActivateSpawnersInIndexedOrder; // Best use only in infinite spawn modes.
 	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Spawner Options")
+		uint8 EnemiesToSpawnPerSpawner; //Set to 0 if you want enemies to spawn infinitely
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Spawner Options")
+		bool bInfiniteSpawning;
+
+
+	uint8 TargetSpawner;
+	uint8 EnemiesKilledOnTagetSpawner;
 	
 
 protected:

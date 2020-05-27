@@ -74,6 +74,10 @@ void AEnemyMinionAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if(minionHealth <= 0)
+	{
+		deathFunction();
+	}
 }
 
 // Called to bind functionality to input
