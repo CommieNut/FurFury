@@ -27,9 +27,6 @@ public:
 	AEnemyMinionAI();
 
 	AMain* PlayerCharacter;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MeleeAttack)
-	class USphereComponent* Hitbox;
 
 	UPROPERTY(EditAnywhere, Category = "Minion Death Function Property")
 	float ftimeTilDeath = 0.542f/*0.225f*/;

@@ -8,6 +8,8 @@
 #include "Engine/World.h"
 #include "Main.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/SphereComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 APluton::APluton()
@@ -17,8 +19,16 @@ APluton::APluton()
 
 	PlutonPawnSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PlutonPawnSensing"));
 
+/*
+	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Hitbox"));
+	CollisionSphere->SetupAttachment(GetRootComponent());
+	CollisionSphere->AddLocalOffset(FVector(0.f, 0.f, 0.f));
+	CollisionSphere->SetRelativeScale3D(FVector(7.f, 7.f, 7.f));
+	CollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
+*/
 	PlutonPawnSensing->OnSeePawn.AddDynamic(this, &APluton::OnPawnSeen);
 	PlutonPawnSensing->OnHearNoise.AddDynamic(this, &APluton::OnNoiseHeard);
+	
 }
 
 // Called when the game starts or when spawned
@@ -56,7 +66,7 @@ void APluton::OnPawnSeen(APawn* SeenPawn)
 
 	//Randomly decides Pluton attack.
 	if (RandomAttack == 0 && bPlutonCanAttack == true){
-		RandomAttack = rand() % 3 + 1;//reset to 3 + 1 
+		RandomAttack = FMath::RandRange(1, 3);
 		UE_LOG(LogTemp, Warning, TEXT("Attack: %d"), RandomAttack);
 	}
 
@@ -141,7 +151,7 @@ void APluton::Headbutt(float DistanceToPawn)
 	if (DistanceToPawn <= 300) {
 		/*CHANGE ANIMATION
 
-		ENABLE ANIM;
+		States = animationStates::Headbutt; ?
 
 		*/
 
@@ -169,7 +179,7 @@ void APluton::DoubleSwipe(float DistanceToPawn)
 		UE_LOG(LogTemp, Warning, TEXT("Double Swipe"));
 		/*CHANGE ANIMATION
 		 
-		ENABLE ANIM;
+		States = animationStates::DoubleSwipe; ?
 
 		*/
 		AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
@@ -187,6 +197,12 @@ void APluton::ThrowRock(float DistanceToPawn)
 	FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector() * 200.f);
 	//GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
 	//GetWorld()->GetTimerManager().SetTimer(FTCooldownTimerHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
+
+	/*CHANGE ANIMATION
+
+		States = animationStates::ThrowRock; ?
+
+	*/
 
 	AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (IsValid(Player))

@@ -22,10 +22,6 @@ AEnemyMinionAI::AEnemyMinionAI()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Hitbox = CreateDefaultSubobject<USphereComponent>(TEXT("Hitbox"));
-	Hitbox->SetupAttachment(GetRootComponent());
-	Hitbox->AddLocalOffset(FVector(80.f, 0.f, 0.f));
-
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> Particle(TEXT("ParticleSystem'/Game/InfinityBladeEffects/Effects/FX_Monsters/FX_Monster_Gruntling/Bomber/P_FireBombExplosion.P_FireBombExplosion'"));
 	MinionDeathParticle = Particle.Object;
 
@@ -53,8 +49,6 @@ void AEnemyMinionAI::OnPawnSeen(APawn* SeenPawn)
 		AddActorLocalOffset(FVector(15.f, 0.f, 0.f)); //Moves the enemy forwards, (towards player).
 		MinionStates = MinionAnimationStates::running;
 
-	
-	
 
 		float XDistance = 0;
 		float YDistance = 0;

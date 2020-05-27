@@ -8,6 +8,16 @@
 
 class UPawnSensingComponent;
 
+UENUM(BlueprintType, Category = "Player Animation")
+enum class PlutonAnimationStates : uint8 {
+	headbutt,
+	dswipe,
+	trock,
+	move,
+	idle
+};
+
+
 UCLASS()
 class FURFURY_API APluton : public ACharacter
 {
@@ -16,6 +26,12 @@ class FURFURY_API APluton : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APluton();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pluton CollisionSphere")
+	class USphereComponent* CollisionSphere;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Pluton Animation")
+	PlutonAnimationStates PlutonStates;
 
 protected:
 	// Called when the game starts or when spawned
