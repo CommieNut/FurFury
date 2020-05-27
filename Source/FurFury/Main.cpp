@@ -12,6 +12,11 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "Projectile.h"
 #include "TimerManager.h"
+#include "objectspawn.h"
+#include "Objectitempickable.h"
+#include "Engine/Engine.h"
+#include "UObject/ObjectMacros.h"
+#include "Materials/MaterialInstance.h"
 
 // Sets default values
 AMain::AMain()
@@ -59,14 +64,28 @@ AMain::AMain()
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Assume immediate control of character without having to set it up in project settings
 	
 	NoiseEmitterComp = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("NoiseEmitter")); //Component that makes noice. used by AI's to detect FurFur
+
+
+		// objectpickup start
+
+	objectpickrange = CreateDefaultSubobject<USphereComponent>(TEXT("objectpickrange"));
+	objectpickrange->AttachTo(RootComponent);
+	objectpickrange->SetSphereRadius(200.f);
+
+	currentpower = 2000.f;
+	playercurrentpower = currentpower;
+
+	//objectpickup end
+
+	// change color on power, didn¨t work.
+	//speedfactor = 0.75f;
+	//basespeed = 10.0f;
 }
 
 void AMain::ResetRangedCooldown()
 {
 	RangedCooldown = false;
 }
-
-
 
 // Called when the game starts or when spawned
 void AMain::BeginPlay()
@@ -113,6 +132,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Heal", IE_Pressed, this, &AMain::HealAbility); // This is a permanent ability, needs some tweaking.
 	PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt); // This is a temporary ability used for testing. will be disabled, however converted to a cheat instead.
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMain::RangedAttack);;
+	PlayerInputComponent->BindAction("objectpickup", IE_Pressed, this, &AMain::objectpickup); //objectpickup code using H as input keyboard
 }
 
 
@@ -164,7 +184,7 @@ void AMain::MeleeAttack()
 			if(IsValid(enemyActor))
 			{
 				enemyActor->minionHealth -= 50;
-	//			enemyActor->deathFunction();
+	//			enemyActor->deathFunction();/
 			}
 		}	
 	}
@@ -172,20 +192,20 @@ void AMain::MeleeAttack()
 }
 void AMain::RangedAttack()
 {
-	if (bPlayerDead != true && RangedCooldown == false && PlayerStamina >= 5 && projectile)
+	if (bPlayerDead != true)
 	{
-		RangedCooldown = true;
-		states = animationStates::fire;
-		GetWorld()->GetTimerManager().SetTimer(FTFireProjectFileHandle, this, &AMain::fireProjectile, 0.700f, false);
+		FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector()*200.f);
+		if(projectile){
+			if(PlayerStamina >= 5 && RangedCooldown == false)
+			{
+				RangedCooldown = true;
+				PlayerStamina -= 5;
+				GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
+				GetWorld()->GetTimerManager().SetTimer(FTHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
+			}
+			
+		}
 	}
-}
-
-void AMain::fireProjectile()
-{
-			FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector() * 200.f);
-			PlayerStamina -= 5;
-			GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
-			GetWorld()->GetTimerManager().SetTimer(FTCooldownTimerHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
 }
 void AMain::HealAbility()
 {
@@ -226,4 +246,80 @@ void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 		
 }
 
+void AMain::objectpickup() {
+	TArray<AActor*> ourcharacter;
+	objectpickrange->GetOverlappingActors(ourcharacter);
+	float setpower = 0;
+	for (int32 collectedpower = 0; collectedpower < ourcharacter.Num(); ++collectedpower) {
+		Aobjectspawn* pickupobjectspawn = Cast<Aobjectspawn>(ourcharacter[collectedpower]);
+		if (pickupobjectspawn && !pickupobjectspawn->IsPendingKill() && pickupobjectspawn->checkactivation()) {
+			pickupobjectspawn->takeit_Implementation();
+			AObjectitempickable* pickablecomponent = Cast<AObjectitempickable>(pickupobjectspawn);
+			if (pickablecomponent) {
+				setpower += pickablecomponent->yourpower();
+			}
+			pickupobjectspawn->setactivation(false);
+		}
+
+	}
+	if (setpower > 0) {
+		updatemypower(setpower);
+	}
+}
+
+float AMain::getpower() {
+	return currentpower;
+}
+
+float AMain::checkmystartingpower() {
+	return playercurrentpower;
+}
+
+void AMain::updatemypower(float changecurrentpower) {
+
+	playercurrentpower = playercurrentpower + changecurrentpower;
+
+	//change color on power didn't work.
+	//GetCharacterMovement()->MaxWalkSpeed = basespeed + speedfactor * playercurrentpower;
+
+	//powerchangevisual(); didn't work
+
+	//if (changecurrentpower > 0) {
+		//if (GEngine)
+		//{
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::SanitizeFloat(changecurrentpower) + FString("power gain"));
+		//}
+	//}
+	//else
+	//{
+		//if (GEngine)
+		//{
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::SanitizeFloat(changecurrentpower) + FString("power loss"));
+		//}
+	//}
+
+}
+/*void AMain::powerchangevisual() {
+	if (materialpowervisual) {
+		float const powerratio = FMath::Clamp((playercurrentpower / currentpower), 0.0f, 1.0f);
+		FLinearColor const powerratiocolor = FMath::Lerp(Teal, Orange, powerratio);
+		materialpowervisual->SetVectorParameterValue("Param", powerratiocolor);
+		GetMesh()->SetMaterial(0, materialpowervisual);
+	}
+}*/
+
+/*void AMain::secondaryMeele() // i found a code that fit. https://www.youtube.com/watch?v=9yftOwWp48A&t=54s
+{ // code from https://www.youtube.com/watch?v=9yftOwWp48A&t=54s
+	if (tomeele) {
+		UWorld* world = GetWorld();
+		if (world) {
+			FActorSpawnParameters spawningparameter;
+			spawningparameter.Owner = this;
+			FRotator rotatingside;
+			FVector spawnlocation = this->CameraBoom->GetComponentLocation();
+			world->SpawnActor<ACombatarm>(tomeele, spawnlocation, rotatingside, spawningparameter);
+		}
+	}
+}
+*/
 
