@@ -66,6 +66,8 @@ void AMain::ResetRangedCooldown()
 	RangedCooldown = false;
 }
 
+
+
 // Called when the game starts or when spawned
 void AMain::BeginPlay()
 {
@@ -162,7 +164,7 @@ void AMain::MeleeAttack()
 			if(IsValid(enemyActor))
 			{
 				enemyActor->minionHealth -= 50;
-	//			enemyActor->deathFunction();/
+	//			enemyActor->deathFunction();
 			}
 		}	
 	}
@@ -170,20 +172,20 @@ void AMain::MeleeAttack()
 }
 void AMain::RangedAttack()
 {
-	if (bPlayerDead != true)
+	if (bPlayerDead != true && RangedCooldown == false && PlayerStamina >= 5 && projectile)
 	{
-		FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector()*200.f);
-		if(projectile){
-			if(PlayerStamina >= 5 && RangedCooldown == false)
-			{
-				RangedCooldown = true;
-				PlayerStamina -= 5;
-				GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
-				GetWorld()->GetTimerManager().SetTimer(FTHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
-			}
-			
-		}
+		RangedCooldown = true;
+		states = animationStates::fire;
+		GetWorld()->GetTimerManager().SetTimer(FTFireProjectFileHandle, this, &AMain::fireProjectile, 0.700f, false);
 	}
+}
+
+void AMain::fireProjectile()
+{
+			FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector() * 200.f);
+			PlayerStamina -= 5;
+			GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
+			GetWorld()->GetTimerManager().SetTimer(FTCooldownTimerHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
 }
 void AMain::HealAbility()
 {

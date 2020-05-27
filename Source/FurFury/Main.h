@@ -13,7 +13,7 @@ enum class animationStates : uint8 {
 	idle,
 	attacking,
 	running,
-	dying,
+	fire,
 	dead
 };
 
@@ -65,7 +65,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Player Ranged Attack Properties")
 	TSubclassOf<class AProjectile> projectile;
 
-	FTimerHandle FTHandle;
+	FTimerHandle FTCooldownTimerHandle;
 	bool RangedCooldown = false;
 
 	UPROPERTY(EditAnywhere, Category = "Player Ranged Attack Properties")
@@ -77,6 +77,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Player Variables")
 	bool bPlayerDead;
 
+	FTimerHandle FTFireProjectFileHandle;
+	void fireProjectile();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
