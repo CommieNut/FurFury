@@ -23,4 +23,5 @@ public:
 	virtual void OnPossess(APawn* pawn) override;
 
 	uint8 bombkey;
+
 };

@@ -20,6 +20,24 @@ public:
 	UPROPERTY(EditAnywhere, Category = "minibomber")
 		class UBehaviorTree* bombbehavior;
 
+	void spawnitem();
+
+	UFUNCTION(BlueprintPure, Category = "RandomFactor")
+		FVector getrandomplace();
+
+	UPROPERTY(EditAnywhere, Category = "spawningthemodel")
+		TSubclassOf<class AProjectile> appear;
+
+	FTimerHandle appeartimer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "appeartimehandling")
+		float appeartimerdelaylower;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "appeartimehandling")
+		float appeartimedelaybigger;
+
+	float timethirdfactor;
+
+	UPROPERTY(EditAnywhere, Category = "objectitemspawn")
+		class UCapsuleComponent* objectmodels;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -31,7 +31,7 @@ EBTNodeResult::Type UBTTask_chasingplayer::ExecuteTask(UBehaviorTreeComponent& O
 	AMinibombcontroller* bombcharacter = Cast<AMinibombcontroller>(OwnerComp.GetAIOwner());
 	AMain* furfurchar = Cast<AMain>(OwnerComp.GetBlackboardComponent()->GetValue<UBlackboardKeyType_Object>(bombcharacter->bombkey));
 	if (furfurchar) {
-			bombcharacter->MoveToActor(furfurchar, 50.f, true, true, true, 0, true);
+			bombcharacter->MoveToActor(furfurchar, 10.f, true, true, true, 0, true);
 			return EBTNodeResult::Succeeded;
 	}
 	else {
