@@ -164,7 +164,7 @@ void AMain::MeleeAttack()
 			if(IsValid(enemyActor))
 			{
 				enemyActor->minionHealth -= 50;
-	//			enemyActor->deathFunction();
+	 			enemyActor->deathFunction();
 			}
 		}	
 	}
