@@ -56,9 +56,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
 		void SpawnMana(FVector Loc, FRotator Rot);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Player Animation")
+	UPROPERTY(BlueprintReadOnly, Category = "Minion Animation")
 		MinionAnimationStates MinionStates;
-	
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

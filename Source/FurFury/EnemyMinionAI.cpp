@@ -13,6 +13,7 @@
 #include "Perception/PawnSensingComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Main.h"
+#include "AIController.h"
 
 
 // Sets default values
@@ -37,50 +38,56 @@ void AEnemyMinionAI::OnPawnSeen(APawn* SeenPawn)
 {
 	if (SeenPawn == nullptr)
 	{
+		MinionStates = MinionAnimationStates::idle;
 		return;
 	}
-	// visual test for debugging (Draws a red sphere if the enemy can see FurFur).
-	// DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 32.0f, 12, FColor::Red, false, 0.5f);
+		// visual test for debugging (Draws a red sphere if the enemy can see FurFur).
+		// DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 32.0f, 12, FColor::Red, false, 0.5f);
 
-	FVector Direction = SeenPawn->GetActorLocation() - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
-	Direction.Normalize();
-	FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
-	NewLookAt.Pitch = 0.0f; //Resets Pitch and Roll. The enemy is now unable to rotate in these directions.
-	NewLookAt.Roll = 0.0f;
-	SetActorRotation(NewLookAt); // rotates the enemy towards the player.
-	AddActorLocalOffset(FVector(15.f, 0.f, 0.f)); //Moves the enemy forwards, (towards player).
+		FVector Direction = SeenPawn->GetActorLocation() - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
+		Direction.Normalize();
+		FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
+		NewLookAt.Pitch = 0.0f; //Resets Pitch and Roll. The enemy is now unable to rotate in these directions.
+		NewLookAt.Roll = 0.0f;
+		SetActorRotation(NewLookAt); // rotates the enemy towards the player.
+		AddActorLocalOffset(FVector(15.f, 0.f, 0.f)); //Moves the enemy forwards, (towards player).
+		MinionStates = MinionAnimationStates::running;
 
+	
+	
 
-	float XDistance = 0;
-	float YDistance = 0;
-	float XYDistance = 0;
+		float XDistance = 0;
+		float YDistance = 0;
+		float XYDistance = 0;
 
-	//calculates a positive XDistance.
-	if (GetActorLocation().X > SeenPawn->GetActorLocation().X) {
-		XDistance = GetActorLocation().X - SeenPawn->GetActorLocation().X;
-	}
-	else {
-		XDistance = SeenPawn->GetActorLocation().X - GetActorLocation().X;
-	}
-	//calculates a positive YDistance.
-	if (GetActorLocation().Y > SeenPawn->GetActorLocation().Y) {
-		YDistance = GetActorLocation().Y - SeenPawn->GetActorLocation().Y;
-	}
-	else {
-		YDistance = SeenPawn->GetActorLocation().Y - GetActorLocation().Y;
-	}
+		//calculates a positive XDistance.
+		if (GetActorLocation().X > SeenPawn->GetActorLocation().X) {
+			XDistance = GetActorLocation().X - SeenPawn->GetActorLocation().X;
+		}
+		else {
+			XDistance = SeenPawn->GetActorLocation().X - GetActorLocation().X;
+		}
+		//calculates a positive YDistance.
+		if (GetActorLocation().Y > SeenPawn->GetActorLocation().Y) {
+			YDistance = GetActorLocation().Y - SeenPawn->GetActorLocation().Y;
+		}
+		else {
+			YDistance = SeenPawn->GetActorLocation().Y - GetActorLocation().Y;
+		}
 
-	XYDistance = sqrt(pow(XDistance, 2) + pow(YDistance, 2)); //Pythagoras theorem, to calculate distance between player and minion (XYDistance)
-	UE_LOG(LogTemp, Warning, TEXT("Distance: %f,"), XYDistance);
+		XYDistance = sqrt(pow(XDistance, 2) + pow(YDistance, 2)); //Pythagoras theorem, to calculate distance between player and minion (XYDistance)
+		UE_LOG(LogTemp, Warning, TEXT("Distance: %f,"), XYDistance);
 
-	AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if (IsValid(Player) && XYDistance <= 100)
-	{
-		Player->PlayerHealth -= 0.5;
-	}
-	else {
-		return;
-	}
+		AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+		if (IsValid(Player) && XYDistance <= 100)
+		{
+			Player->PlayerHealth -= 1;
+		}
+		else {
+			MinionStates = MinionAnimationStates::idle;
+			return;
+		}
+
 }
 
 void AEnemyMinionAI::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume)
@@ -107,7 +114,7 @@ void AEnemyMinionAI::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Locatio
 void AEnemyMinionAI::deathFunction()
 {
 	GetCharacterMovement()->DisableMovement();
-	MinionAnimationStates::dead;
+	MinionStates = MinionAnimationStates::dead;
 	FTimerHandle THandle;
 	GetWorld()->GetTimerManager().SetTimer(THandle, this, &AEnemyMinionAI::destroyFunction, ftimeTilDeath, false);
 }
@@ -158,13 +165,6 @@ void AEnemyMinionAI::Tick(float DeltaTime)
 
 	if (minionHealth <= 0) {
 		deathFunction();
-	}
-
-	if(Velocity != 0){
-		MinionAnimationStates::running;
-	}
-	else {
-		MinionAnimationStates::idle;
 	}
 }
 

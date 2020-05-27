@@ -32,6 +32,10 @@ protected:
 
 	float Swipes = 0;
 
+	const float HeadbuttC = 1; 
+	const float DoubleSwipeC = 2;
+	const float ThrowRockC = 3;
+
 	/** Handles the delay before Pluton can walk */
 	FTimerHandle PlutonWalkDelayHandle;
 
@@ -48,6 +52,8 @@ protected:
 	void Headbutt(float DistanceToPawn);
 
 	void DoubleSwipe(float DistanceToPawn);
+
+	void ThrowRock(float DistanceToPawn);
 
 public:	
 	// Called every frame

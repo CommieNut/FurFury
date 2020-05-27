@@ -56,11 +56,11 @@ void APluton::OnPawnSeen(APawn* SeenPawn)
 
 	//Randomly decides Pluton attack.
 	if (RandomNumber == 0 && bPlutonCanAttack == true){
-		RandomNumber = rand() % 2 + 1;
+		RandomNumber = rand() % 3 + 1;
 		UE_LOG(LogTemp, Warning, TEXT("Attack: %f"), RandomNumber);
 	}
 
-	if (RandomNumber == 1) { // Charged Headbutt
+	if (RandomNumber == HeadbuttC) { // Charged Headbutt
 		if (bPlutonCanWalk) {
 			GetWorldTimerManager().ClearTimer(PlutonWalkDelayHandle);
 			Walk(SeenPawn, XYDistance, 20);
@@ -70,7 +70,7 @@ void APluton::OnPawnSeen(APawn* SeenPawn)
 			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 1.0f, false);
 		}
 	}
-	else if(RandomNumber == 2) //Double Swipe
+	else if(RandomNumber == DoubleSwipeC) //Double Swipe
 	{ 
 		if (bPlutonCanWalk) {
 			GetWorldTimerManager().ClearTimer(PlutonWalkDelayHandle);
@@ -82,15 +82,18 @@ void APluton::OnPawnSeen(APawn* SeenPawn)
 			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 0.3f, false);
 		}
 	}
-	else if (RandomNumber == 3) { //Throw Rock
+	else if (RandomNumber == ThrowRockC) { //Throw Rock
+		if (bPlutonCanWalk) {
+			GetWorldTimerManager().ClearTimer(PlutonWalkDelayHandle);
+			ThrowRock(XYDistance);
+		}
 
+		else if (!GetWorldTimerManager().IsTimerActive(PlutonWalkDelayHandle)) {
+			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 2.0f, false);
+		}
 	}
-	else if (RandomNumber == 4) { 
 
-	}
-	else if (RandomNumber == 5){
-
-	}
+	
 }
 
 void APluton::ResetWalk()
@@ -114,7 +117,6 @@ void APluton::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, floa
 
 void APluton::Walk(APawn* SeenPawn, float XYDistance, float WalkSpeed) 
 {
-
 		DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 32.0f, 12, FColor::Red, false, 0.5f);
 
 		FVector Direction = SeenPawn->GetActorLocation() - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
@@ -178,6 +180,22 @@ void APluton::DoubleSwipe(float DistanceToPawn)
 		bPlutonCanAttack = false;
 		GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 0.5f, false);
 	}
+}
+
+void APluton::ThrowRock(float DistanceToPawn)
+{
+	FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector() * 200.f);
+	//GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
+	//GetWorld()->GetTimerManager().SetTimer(FTCooldownTimerHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
+
+	AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (IsValid(Player))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Rock throw hit."));
+		Player->PlayerHealth -= 25.0f;
+	}
+	RandomNumber = 0;
+	GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 3.0f, false);
 }
 
 // Called every frame
