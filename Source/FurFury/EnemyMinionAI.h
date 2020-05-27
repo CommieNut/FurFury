@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "EnemyMinionAI.generated.h"
 
+class UPawnSensingComponent;
 
 UCLASS()
 class FURFURY_API AEnemyMinionAI : public ACharacter
@@ -24,13 +25,19 @@ public:
 	class USphereComponent* Hitbox;
 
 	UPROPERTY(EditAnywhere, Category = "Minion Death Function Property")
-	float ftimeTilDeath = 0.225f;
+	float ftimeTilDeath = 0.01f/*0.225f*/;
 
 	UPROPERTY(EditAnywhere, Category = "Minion Particle System")
 	UParticleSystem* MinionDeathParticle;
+
+	UPROPERTY(EditAnywhere, Category = "Minion Particle System")
+	UParticleSystem* MinionDamagedParticle;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Minion Mana Drop")
 	TSubclassOf<AActor> ActorToSpawn;
+
+	UPROPERTY(EditAnywhere, Category = "Minion Health")
+	int minionHealth = 100.f;
 
 	//On Death Functions
 	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
@@ -45,6 +52,15 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, Category = "AI")
+	UPawnSensingComponent* PawnSensing;
+
+	UFUNCTION()
+	void OnPawnSeen(APawn* SeenPawn);
+
+	UFUNCTION()
+	void OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume);
 
 public:	
 	// Called every frame

@@ -61,11 +61,23 @@ void AEnemyMinionAI::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AEnemyMinionAI::OnPawnSeen(APawn* SeenPawn)
+{
+}
+
+void AEnemyMinionAI::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume)
+{
+}
+
 // Called every frame
 void AEnemyMinionAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if(minionHealth <= 0)
+	{
+		deathFunction();
+	}
 }
 
 // Called to bind functionality to input

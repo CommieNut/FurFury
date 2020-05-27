@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Main.generated.h"
 
+class UPawnNoiseEmitterComponent;
+
 UENUM(BlueprintType, Category = "Player Animation")
 enum class animationStates : uint8 {
 	idle,
@@ -14,7 +16,6 @@ enum class animationStates : uint8 {
 	dying,
 	dead
 };
-
 
 UCLASS()
 class FURFURY_API AMain : public ACharacter
@@ -50,10 +51,10 @@ public:
 	int EnemySpawned = 50;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	int PlayerHealth = 100.0f;
+	int PlayerHealth = 100;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	int PlayerStamina = 100.0f;
+	int PlayerStamina = 100;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	bool bIsRunning = false;
@@ -61,11 +62,27 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Player Animation")
 	animationStates states;
 
+	UPROPERTY(EditAnywhere, Category = "Player Ranged Attack Properties")
+	TSubclassOf<class AProjectile> projectile;
 
+	FTimerHandle FTHandle;
+	bool RangedCooldown = false;
+
+	UPROPERTY(EditAnywhere, Category = "Player Ranged Attack Properties")
+	float FCoolDownTime = 0.5f;
+
+	UFUNCTION(BlueprintCallable, Category= "Player Ranged Attack Properties")
+	void ResetRangedCooldown();
+
+	UPROPERTY(BlueprintReadWrite, Category = "Player Variables")
+	bool bPlayerDead;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
+	UPawnNoiseEmitterComponent* NoiseEmitterComp;
 
 public:
 	// Called every frame
@@ -94,6 +111,8 @@ public:
 
 	void HealAbility();
 	void Hurt();
+
+	void RangedAttack();
 
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

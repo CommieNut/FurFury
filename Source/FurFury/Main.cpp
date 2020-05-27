@@ -9,6 +9,9 @@
 #include "EnemyMinionAI.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Pickup_Stamina.h"
+#include "Components/PawnNoiseEmitterComponent.h"
+#include "Projectile.h"
+#include "TimerManager.h"
 
 // Sets default values
 AMain::AMain()
@@ -51,9 +54,16 @@ AMain::AMain()
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 840.f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 650.f;
-	GetCharacterMovement()->AirControl = 0.2f; // (Kanskje burde fjerne air control... -Mo 19.03.2020)
+	GetCharacterMovement()->AirControl = 0.4f;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Assume immediate control of character without having to set it up in project settings
+	
+	NoiseEmitterComp = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("NoiseEmitter")); //Component that makes noice. used by AI's to detect FurFur
+}
+
+void AMain::ResetRangedCooldown()
+{
+	RangedCooldown = false;
 }
 
 // Called when the game starts or when spawned
@@ -69,16 +79,21 @@ void AMain::BeginPlay()
 void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (GetInputAxisValue("MoveForward") != 0 || GetInputAxisValue("MoveRight") != 0) {
-		states = animationStates::running;
+	if (bPlayerDead != true)
+	{
+		if (GetInputAxisValue("MoveForward") != 0 || GetInputAxisValue("MoveRight") != 0) {
+			states = animationStates::running;
+		}else{
+			states = animationStates::idle;
+		}
 	}
-	else {
-		states = animationStates::idle;
-	}
+
 
 	if(PlayerHealth <= 0) // Very very basic death if-statement, if the player health is less than or equal to 0, destroy this actor.
 	{
-		this->Destroy();
+		//this->Destroy();
+		GetCharacterMovement()->DisableMovement();
+		bPlayerDead = true;
 	}
 }
 
@@ -95,6 +110,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
 	PlayerInputComponent->BindAction("Heal", IE_Pressed, this, &AMain::HealAbility); // This is a permanent ability, needs some tweaking.
 	PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt); // This is a temporary ability used for testing. will be disabled, however converted to a cheat instead.
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMain::RangedAttack);;
 }
 
 
@@ -133,24 +149,45 @@ void AMain::LookUpAtRate(float Rate) // should be removed, not necessary as we d
 }
 void AMain::MeleeAttack()
 {
-	states = animationStates::attacking; //Animation state, changes to attacking on activation of this function. Does not loop.
-	UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
-	TArray<AActor*> TempActors; // Make an array to contain colliding actors
-	MeleeHitbox->GetOverlappingActors(TempActors, AEnemyMinionAI::StaticClass()); // Checks for colliding actors, if true then add to the temporary array. A filter is added to add enemies only.
-	for (size_t i = 0; i < TempActors.Num(); i++) // runs through the array
+	if(bPlayerDead != true)
 	{
-		//TempActors[i]->Destroy(); // Destroy actor in that specefic array index
-		auto enemyActor = Cast<AEnemyMinionAI>(TempActors[i]);
-		if(IsValid(enemyActor))
+		states = animationStates::attacking; //Animation state, changes to attacking on activation of this function. Does not loop.
+		UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
+		TArray<AActor*> TempActors; // Make an array to contain colliding actors
+		MeleeHitbox->GetOverlappingActors(TempActors, AEnemyMinionAI::StaticClass()); // Checks for colliding actors, if true then add to the temporary array. A filter is added to add enemies only.
+		for (size_t i = 0; i < TempActors.Num(); i++) // runs through the array
 		{
-			enemyActor->deathFunction();
+			//TempActors[i]->Destroy(); // Destroy actor in that specefic array index
+			auto enemyActor = Cast<AEnemyMinionAI>(TempActors[i]);
+			if(IsValid(enemyActor))
+			{
+				enemyActor->minionHealth -= 50;
+	//			enemyActor->deathFunction();/
+			}
+		}	
+	}
+
+}
+void AMain::RangedAttack()
+{
+	if (bPlayerDead != true)
+	{
+		FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector()*200.f);
+		if(projectile){
+			if(PlayerStamina >= 5 && RangedCooldown == false)
+			{
+				RangedCooldown = true;
+				PlayerStamina -= 5;
+				GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
+				GetWorld()->GetTimerManager().SetTimer(FTHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
+			}
+			
 		}
 	}
 }
-
 void AMain::HealAbility()
 {
-	if(PlayerHealth < 100 && PlayerStamina >= 25) // Simple heal ability, if player health is less that 100 and player stamina is more than or equal to 25
+	if(PlayerHealth < 100 && PlayerStamina >= 25 && bPlayerDead != true) // Simple heal ability, if player health is less that 100 and player stamina is more than or equal to 25
 	{
 		PlayerHealth += 25; //add 25 health (will need tweaking)
 		PlayerStamina -= 25; //remove 25 stamina (will need tweaking)
@@ -160,11 +197,12 @@ void AMain::HealAbility()
 		}
 	}
 }
-
 void AMain::Hurt() // Very simple function only made for testing. (REMOVE)
 {
-	PlayerHealth -= 25;
+	PlayerHealth -= 25.f;
 }
+
+
 
 void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
