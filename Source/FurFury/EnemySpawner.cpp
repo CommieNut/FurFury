@@ -20,8 +20,9 @@ AEnemySpawner::AEnemySpawner()
 void AEnemySpawner::BeginPlay()
 {
 	Super::BeginPlay();
-	spawn1to5delay = FMath::FRandRange(spawndelaylowernumber, spawndelayhighernumber);
-	GetWorldTimerManager().SetTimer(spawntimer, this, &AEnemySpawner::spawn, spawn1to5delay, false);
+	Final = FMath::FRandRange(LocalRandomDelayInSecondsMin, LocalRandomDelayInSecondsMax); // get from handler
+	
+	GetWorldTimerManager().SetTimer(SpawnTimer, this, &AEnemySpawner::spawn, Final, false);
 	spawn();
 }
 
@@ -31,6 +32,7 @@ void AEnemySpawner::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+
 //changed to this code due to bug.
 void AEnemySpawner::spawn() {
 	UWorld* world = GetWorld();
@@ -39,6 +41,6 @@ void AEnemySpawner::spawn() {
 	FActorSpawnParameters spawningparameter;
 	spawningparameter.Owner = this;
 	if (world) {
-			world->SpawnActor<AEnemyMinionAI>(tospawn, spawnlocation, rotatingside, spawningparameter);
+			world->SpawnActor<AEnemyMinionAI>(ActorToSpawn, spawnlocation, rotatingside, spawningparameter);
 	}
 }

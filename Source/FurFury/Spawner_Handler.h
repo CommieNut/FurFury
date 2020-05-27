@@ -32,7 +32,21 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Spawner Options")
 		bool bInfiniteSpawning;
 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Delay And Timing")
+		bool RandDelay = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Delay And Timing")
+		float PreSetDelayInSeconds;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Delay And Timing")
+		float RandomDelayInSecondsMin;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Delay And Timing")
+		float RandomDelayInSecondsMax;
+
+
+	
 	uint8 TargetSpawner;
 	uint8 EnemiesKilledOnTagetSpawner;
 	

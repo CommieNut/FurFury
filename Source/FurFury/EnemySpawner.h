@@ -18,11 +18,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
 		class UBoxComponent* spawnbox;
 	
-	UPROPERTY(EditAnywhere, Category = "toSpawn")
-		TSubclassOf<class AEnemyMinionAI> tospawn;
+	UPROPERTY(EditAnywhere, Category = "Actors To Spawn")
+		TSubclassOf<class AEnemyMinionAI> ActorToSpawn;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "SpawnerIdentifiers")
-		int IDindex = 0; //Utilized by developers to order the spawners in the desired order. (Important for the spawner handler)
+		int SpawnerIndex = 0; //Utilized by developers to order the spawners in the desired order. (Important for the spawner handler)
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "SpawnerManipulators")
 		bool spawnerActive = false;
@@ -30,8 +30,14 @@ public:
 	UPROPERTY(EditAnywhere, category = "Spawning")
 		AEnemyMinionAI* getdestroyed;
 
-		UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable)
 		void spawn();
+
+
+	float LocalPreSetDelayInSeconds;
+	float LocalRandomDelayInSecondsMin;
+	float LocalRandomDelayInSecondsMax;
+	FTimerHandle SpawnTimer;
 
 
 	//maybe crashes when on deltatime.
@@ -43,14 +49,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-
-	 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "delayspawntime")
-	 float spawndelaylowernumber;
-	 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "delayspawntime")
-	 float spawndelayhighernumber;
-	 FTimerHandle spawntimer;
-
-
-	 float spawn1to5delay;
-	 float delay = 30.0f;
+	 float Final;
 };
