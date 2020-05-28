@@ -71,9 +71,13 @@ void AEnemyMinionAI::OnPawnSeen(APawn* SeenPawn)
 		if (XYDistance >= 100)
 		{
 			AddActorLocalOffset(FVector(5.f, 0.f, 0.f)); //Moves the enemy forwards, (towards player).
+			MinionStates = MinionAnimationStates::running;
+		}else
+		{
+			MinionStates = MinionAnimationStates::idle;
 		}
 
-		MinionStates = MinionAnimationStates::running;
+		
 
 
 

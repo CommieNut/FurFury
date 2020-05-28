@@ -41,6 +41,7 @@ void APluton::BeginPlay()
 void APluton::OnPawnSeen(APawn* SeenPawn)
 {
 	if (SeenPawn == nullptr) {
+		PlutonStates = PlutonAnimationStates::idle;
 		return;
 	}
 	// CALCULATE DISTANCE
@@ -213,6 +214,12 @@ void APluton::ThrowRock(float DistanceToPawn)
 void APluton::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	if(!bPlutonCanWalk)
+	{
+		PlutonStates = PlutonAnimationStates::idle;
+	}
 }
 
 
