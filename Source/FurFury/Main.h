@@ -60,10 +60,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	int PlayerStamina = 100;
 
-	UPROPERTY(EditAnywhere, Category = "keys")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "keys")
 	int KeysCollected = 0;
 
-	UPROPERTY(EditAnywhere, Category = "keys")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "keys")
 	int KeysToCollect = 3;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Player Animation")
@@ -101,10 +101,22 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Audio Components")
 		class UAudioComponent* MeleeSwingAudio;
 
+	UPROPERTY(EditAnywhere, Category = "Player Variables")
+		int MeleeDamageINT;
+
+	UPROPERTY(EditAnywhere, Category = "Player Variables")
+		int RangedDamageINT;
+	
+
 	FTimerHandle FTFireProjectFileHandle;
+	FTimerHandle FTCanMeleeResetter;
 	void fireProjectile();
 	bool Moving;
 	bool bCanOpenDoor = false;
+	bool bCanDamagePluton = false;
+	bool bCanMelee = true;
+
+	void CanMeleeReset();
 
 protected:
 	// Called when the game starts or when spawned

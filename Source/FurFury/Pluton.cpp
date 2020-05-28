@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "particles/ParticleSystem.h"
 
 // Sets default values
 APluton::APluton()
@@ -217,6 +218,11 @@ void APluton::ThrowRock(float DistanceToPawn)
 	GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 2.0f, false);
 }
 
+void APluton::PlutonDeathFunction()
+{
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathParticle, GetActorLocation(), GetActorRotation(), true, EPSCPoolMethod::None, true);
+}
+
 // Called every frame
 void APluton::Tick(float DeltaTime)
 {
@@ -229,6 +235,15 @@ void APluton::Tick(float DeltaTime)
 	}
 	else {
 		PlutonStates = PlutonAnimationStates::move;
+	}
+
+	if(PlutonHealth<=0)
+	{
+		PlutonIsDead = true;
+		PlutonDeathFunction();
+	}else
+	{
+		PlutonIsDead = false;
 	}
 }
 

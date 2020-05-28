@@ -14,6 +14,7 @@
 #include "TimerManager.h"
 #include "Key_BP.h"
 #include "Components/AudioComponent.h"
+#include "Pluton.h"
 
 // Sets default values
 AMain::AMain()
@@ -76,6 +77,11 @@ void AMain::ResetRangedCooldown()
 
 
 
+void AMain::CanMeleeReset()
+{
+	bCanMelee = true;
+}
+
 // Called when the game starts or when spawned
 void AMain::BeginPlay()
 {
@@ -123,7 +129,10 @@ void AMain::Tick(float DeltaTime)
 		}
 	}
 
-
+	if(EnemyKilled >= EnemySpawned)
+	{
+		bCanDamagePluton = true;
+	}
 
 	
 	if(PlayerHealth <= 0 && !SetOnce) // Very very basic death if-statement, if the player health is less than or equal to 0, destroy this actor.
@@ -148,7 +157,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
 	PlayerInputComponent->BindAction("Heal", IE_Pressed, this, &AMain::HealAbility); // This is a permanent ability, needs some tweaking.
-	PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt); // This is a temporary ability used for testing. will be disabled, however converted to a cheat instead.
+	//PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt); // This is a temporary ability used for testing. will be disabled, however converted to a cheat instead.
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMain::RangedAttack);;
 }
 
@@ -204,9 +213,9 @@ void AMain::PlayerJump()
 
 void AMain::MeleeAttack()
 {
-	if(bPlayerDead != true)
+	if(bPlayerDead != true && bCanMelee == true)
 	{
-		MeleeSwingAudio->Play(0.244f);
+		
 		states = animationStates::attacking; //Animation state, changes to attacking on activation of this function. Does not loop.
 		UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
 		TArray<AActor*> TempActors; // Make an array to contain colliding actors
@@ -215,10 +224,23 @@ void AMain::MeleeAttack()
 		{
 			//TempActors[i]->Destroy(); // Destroy actor in that specefic array index
 			auto enemyActor = Cast<AEnemyMinionAI>(TempActors[i]);
+			auto enemyActor2 = Cast<APluton>(TempActors[i]);
 			if(IsValid(enemyActor))
 			{
-				enemyActor->minionHealth -= 50;
-	//			enemyActor->deathFunction();
+				MeleeSwingAudio->Play(0.244f);
+				enemyActor->minionHealth -= MeleeDamageINT;
+				bCanMelee = false;
+				GetWorld()->GetTimerManager().SetTimer(FTCanMeleeResetter, this, &AMain::CanMeleeReset, 0.200f, false);
+			}else
+			{
+				if(bCanDamagePluton)
+				{
+					MeleeSwingAudio->Play(0.244f);
+					enemyActor2->PlutonHealth -= MeleeDamageINT;
+					bCanMelee = false;
+					GetWorld()->GetTimerManager().SetTimer(FTCanMeleeResetter, this, &AMain::CanMeleeReset, 0.200f, false);
+				}
+				
 			}
 		}
 	}
@@ -238,7 +260,7 @@ void AMain::fireProjectile()
 {
 	RangedAttackAudio->Play(0.314f);
 	FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector() * 200.f);
-	PlayerStamina -= 5;
+	PlayerStamina -= 10;
 	GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
 	GetWorld()->GetTimerManager().SetTimer(FTCooldownTimerHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
 }
@@ -254,10 +276,10 @@ void AMain::HealAbility()
 		}
 	}
 }
-void AMain::Hurt() // Very simple function only made for testing. (REMOVE)
-{
-	PlayerHealth -= 25;
-}
+//void AMain::Hurt() // Very simple function only made for testing. (REMOVE)
+//{
+//	PlayerHealth -= 25;
+//}
 
 
 
@@ -273,6 +295,10 @@ void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 			if(PlayerStamina <= 75)
 			{
 				PlayerStamina += 25;
+				ActorCheck->Destroy();
+			}else
+			{
+				PlayerStamina = 100;
 				ActorCheck->Destroy();
 			}
 			

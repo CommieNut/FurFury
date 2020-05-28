@@ -27,12 +27,22 @@ public:
 	// Sets default values for this character's properties
 	APluton();
 
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pluton CollisionSphere")
 	class USphereComponent* CollisionSphere;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Pluton Animation")
 	PlutonAnimationStates PlutonStates;
 
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Pluton Effects")
+		UParticleSystem* DeathParticle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pluton Variables")
+		int PlutonHealth = 1000;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pluton Variables")
+	bool PlutonIsDead;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -44,12 +54,11 @@ protected:
 	bool bPlutonCanWalk = false;
 	bool bPlutonCanAttack = true;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pluton Variables")
-	int PlutonHealth = 1000;
-
 	int RandomAttack = 0;
 
 	float Swipes = 0;
+
+
 
 	static constexpr int  HeadbuttC = 1;	// Static connstexpr sets the value at complation.
 	static constexpr int  DoubleSwipeC = 2;
@@ -73,6 +82,8 @@ protected:
 	void DoubleSwipe(float DistanceToPawn);
 
 	void ThrowRock(float DistanceToPawn);
+
+	void PlutonDeathFunction();
 
 public:	
 	// Called every frame
