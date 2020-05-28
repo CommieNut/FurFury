@@ -118,7 +118,7 @@ void APluton::ResetWalk()
 
 void APluton::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume)
 {
-	DrawDebugSphere(GetWorld(), Location, 32.0f, 12, FColor::Green, false, 0.5f);
+	//DrawDebugSphere(GetWorld(), Location, 32.0f, 12, FColor::Green, false, 0.5f);
 
 	FVector Direction = NoiseInstigator->GetActorLocation() - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
 	Direction.Normalize();
@@ -130,7 +130,7 @@ void APluton::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, floa
 
 void APluton::Walk(APawn* SeenPawn, float XYDistance, float WalkSpeed) 
 {
-		DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 32.0f, 12, FColor::Red, false, 0.5f);
+		//DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 32.0f, 12, FColor::Red, false, 0.5f);
 
 		FVector Direction = SeenPawn->GetActorLocation() - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
 		Direction.Normalize();
