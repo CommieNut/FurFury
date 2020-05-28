@@ -121,60 +121,7 @@ public:
 
 	void RangedAttack();
 
-	//section for pickup power from item
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Objectpickrange")
-		class USphereComponent* objectpickrange;
-
-	UFUNCTION(BlueprintPure, Category = "getpower")
-		float getpower(); // get more
-	UFUNCTION(BlueprintPure, Category = "checkstartingpower")
-		float checkmystartingpower(); // starting power
-	UFUNCTION(Blueprintcallable, Category = " updating power")
-		void updatemypower(float changecurrentpower); //updating
-	UFUNCTION(BlueprintCallable, Category = "objectpickup")
-		void objectpickup();
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "currentpower")
-		float currentpower; //starting
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "playercurrentpower")
-		float playercurrentpower; //character
-
-	//didn't work
-	/*
-	//multiplier for character speed
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "speed")
-		float speedfactor;
-	//speed when zero power
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "speed")
-		float basespeed;
-	UFUNCTION(BlueprintImplementableEvent, Category = "speed")
-		void powerchangevisual();
-
-	UMaterialInstanceDynamic* materialpowervisual;
-	FLinearColor const Teal;
-	FLinearColor const Orange;
-*/
-//speedfactor end
-//end section for pickup power from item
-
-//section for combatarm
-//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Meele explosion")
-//TSubclassOf<class ACombatarm> ACombatarm_BP;
-//UPROPERTY()
-//bool m2eele;
-//UPROPERTY()
-//float cooldown;
-//UPROPERTY()
-//FTimerHandle timer;
-	//UPROPERTY(EditAnywhere) // my pawn can't shoot without this.
-		//TSubclassOf<class ACombatarm> tomeele;
-	//UFUNCTION(BlueprintCallable) // my pawn can't shoot without this.
-		//void secondaryMeele();
-
-	//taught from hendrik meeleoverlap
-	//UPROPERTY(VisibleAnywhere)
-		//bool MeleeOverlaphendrik = false;
-	//end section for combatarm
 	
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
