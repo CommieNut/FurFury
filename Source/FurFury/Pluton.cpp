@@ -41,6 +41,7 @@ void APluton::BeginPlay()
 void APluton::OnPawnSeen(APawn* SeenPawn)
 {
 	if (SeenPawn == nullptr) {
+		PlutonStates = PlutonAnimationStates::idle;
 		return;
 	}
 	// CALCULATE DISTANCE
@@ -139,21 +140,19 @@ void APluton::Walk(APawn* SeenPawn, float XYDistance, float WalkSpeed)
 		SetActorRotation(NewLookAt); // rotates the enemy towards the player.
 		
 		if (XYDistance >= 300 && RandomAttack != ThrowRockC) {
+			PlutonStates = PlutonAnimationStates::move;
 			AddActorLocalOffset(FVector(WalkSpeed, 0.f, 0.f)); //Moves the character in Plutons X-direction.
 		}
 		else {
 			bPlutonCanWalk = false;
+			PlutonStates = PlutonAnimationStates::idle;
 		}
 }
 
 void APluton::Headbutt(float DistanceToPawn)
 {
 	if (DistanceToPawn <= 300) {
-		/*CHANGE ANIMATION
-
-		States = animationStates::Headbutt; ?
-
-		*/
+		PlutonStates = PlutonAnimationStates::headbutt;
 
 		AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 		if (IsValid(Player))
@@ -177,11 +176,7 @@ void APluton::DoubleSwipe(float DistanceToPawn)
 	else if (DistanceToPawn <= 300 && bPlutonCanAttack == true) {
 		Swipes++;
 		UE_LOG(LogTemp, Warning, TEXT("Double Swipe"));
-		/*CHANGE ANIMATION
-		 
-		States = animationStates::DoubleSwipe; ?
-
-		*/
+		PlutonStates = PlutonAnimationStates::dswipe;
 		AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 		if (IsValid(Player))
 		{
@@ -194,6 +189,7 @@ void APluton::DoubleSwipe(float DistanceToPawn)
 
 void APluton::ThrowRock(float DistanceToPawn)
 {
+	PlutonStates = PlutonAnimationStates::trock;
 	FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector() * 200.f);
 	//GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
 	//GetWorld()->GetTimerManager().SetTimer(FTCooldownTimerHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
@@ -218,6 +214,12 @@ void APluton::ThrowRock(float DistanceToPawn)
 void APluton::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	if(!bPlutonCanWalk)
+	{
+		PlutonStates = PlutonAnimationStates::idle;
+	}
 }
 
 
