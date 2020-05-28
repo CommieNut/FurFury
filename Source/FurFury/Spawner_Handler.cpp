@@ -12,9 +12,9 @@ ASpawner_Handler::ASpawner_Handler()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
 	InvisibleShere = CreateDefaultSubobject<USphereComponent>(TEXT("ExistenceIndicatorSphere"));
 	RootComponent = InvisibleShere;
-
 }
 
 // Called when the game starts or when spawned

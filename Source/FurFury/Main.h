@@ -13,7 +13,11 @@ enum class animationStates : uint8 {
 	idle,
 	attacking,
 	running,
-	dying,
+	jumpStart,
+	jumpFalling,
+	jumpLanding,
+	jumpGliding, // Not currently in use.
+	fire,
 	dead
 };
 
@@ -56,16 +60,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	int PlayerStamina = 100;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	bool bIsRunning = false;
-
 	UPROPERTY(BlueprintReadOnly, Category = "Player Animation")
 	animationStates states;
 
 	UPROPERTY(EditAnywhere, Category = "Player Ranged Attack Properties")
 	TSubclassOf<class AProjectile> projectile;
 
-	FTimerHandle FTHandle;
+	FTimerHandle FTCooldownTimerHandle;
 	bool RangedCooldown = false;
 
 	UPROPERTY(EditAnywhere, Category = "Player Ranged Attack Properties")
@@ -76,6 +77,49 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Player Variables")
 	bool bPlayerDead;
+
+	FTimerHandle FTFireProjectFileHandle;
+	void fireProjectile();
+	bool Moving;
+	
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
+	UPawnNoiseEmitterComponent* NoiseEmitterComp;
+
+public:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	/** Called for forwards/Backwards input */
+	void MoveForward(float Value);
+
+	/** Called for side to side input */
+	void MoveRight(float Value);
+
+	/** Called via input to turn at a given rate
+	* @param Rate This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
+	*/
+	void TurnAtRate(float Rate);
+
+	/** Called via input to look up/down at a given rate
+	* @param Rate This is a normalized rate, i.e. 1.0 means 100% of desired look up/down rate
+	*/
+	void LookUpAtRate(float Rate);
+
+	void PlayerJump();
+	
+	void MeleeAttack();
+
+	void HealAbility();
+	void Hurt();
+
+	void RangedAttack();
 
 	//section for pickup power from item
 
@@ -131,44 +175,7 @@ public:
 	//UPROPERTY(VisibleAnywhere)
 		//bool MeleeOverlaphendrik = false;
 	//end section for combatarm
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
-	UPawnNoiseEmitterComponent* NoiseEmitterComp;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	/** Called for forwards/Backwards input */
-	void MoveForward(float Value);
-
-	/** Called for side to side input */
-	void MoveRight(float Value);
-
-	/** Called via input to turn at a given rate
-	* @param Rate This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	*/
-	void TurnAtRate(float Rate);
-
-	/** Called via input to look up/down at a given rate
-	* @param Rate This is a normalized rate, i.e. 1.0 means 100% of desired look up/down rate
-	*/
-	void LookUpAtRate(float Rate);
-
-	void MeleeAttack();
-
-	void HealAbility();
-	void Hurt();
-
-	void RangedAttack();
-
+	
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 

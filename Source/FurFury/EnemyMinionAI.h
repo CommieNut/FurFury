@@ -10,6 +10,13 @@
 
 class UPawnSensingComponent;
 
+UENUM(BlueprintType, Category = "Player Animation")
+enum class MinionAnimationStates : uint8 {
+	idle,
+	running,
+	dead
+};
+
 UCLASS()
 class FURFURY_API AEnemyMinionAI : public ACharacter
 {
@@ -18,14 +25,11 @@ class FURFURY_API AEnemyMinionAI : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AEnemyMinionAI();
-
-	AMain* PlayerCharacter;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MeleeAttack)
-	class USphereComponent* Hitbox;
+	AMain* PlayerCharacter;
 
 	UPROPERTY(EditAnywhere, Category = "Minion Death Function Property")
-	float ftimeTilDeath = 0.01f/*0.225f*/;
+	float ftimeTilDeath = 0.600f/*0.225f*/;
 
 	UPROPERTY(EditAnywhere, Category = "Minion Particle System")
 	UParticleSystem* MinionDeathParticle;
@@ -37,17 +41,34 @@ public:
 	TSubclassOf<AActor> ActorToSpawn;
 
 	UPROPERTY(EditAnywhere, Category = "Minion Health")
-	int minionHealth = 100.f;
+	int minionHealth = 100;
 
 	//On Death Functions
 	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
-		void deathFunction(); //EnemyToKill--;
+		void deathFunction();
 
 	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
 		void destroyFunction();
 
 	UFUNCTION(BlueprintCallable, Category = "Minion Functions")
 		void SpawnMana(FVector Loc, FRotator Rot);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Minion Animation")
+		MinionAnimationStates MinionStates;
+
+
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Minion Damage Output")
+		float DamageCoolDown = 0.f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Minion Damage Output")
+		int DamagePerHit = 0;
+
+	bool bCanDamage = true;
+
+	FTimerHandle CanDamageTimerReset;
+
+	void CanDamageResetFunction();
 	
 protected:
 	// Called when the game starts or when spawned

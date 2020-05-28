@@ -121,10 +121,10 @@ void AKeymodetest::handling(EpowerPlayState newz) {
 		for (Aobjectspawnitem* spawnfactor : spawnbutton) {
 			spawnfactor->setspawningactive(false);
 		}
-		
-		}
-	
-	break;
+
+	}
+
+							  break;
 
 	case EpowerPlayState::EGameOver:
 	{
