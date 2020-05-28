@@ -12,6 +12,8 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "Projectile.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "Pluton.h"
 
 // Sets default values
 AMain::AMain()
@@ -54,7 +56,7 @@ AMain::AMain()
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 840.f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 650.f;
-	GetCharacterMovement()->AirControl = 0.5f;
+	GetCharacterMovement()->AirControl = 0.4f;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Assume immediate control of character without having to set it up in project settings
 	
@@ -77,47 +79,19 @@ void AMain::BeginPlay()
 }
 
 
-
 // Called every frame
 void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	bool Falling = GetCharacterMovement()->IsFalling();
-	if (GetInputAxisValue("MoveForward") != 0 || GetInputAxisValue("MoveRight") != 0)
-	{
-		Moving = true;
-	}else
-	{
-		Moving = false;
-	}
-	
 	if (bPlayerDead != true)
-	{	
-		if (Moving && !Falling && states != animationStates::jumpFalling){
+	{
+		if (GetInputAxisValue("MoveForward") != 0 || GetInputAxisValue("MoveRight") != 0) {
 			states = animationStates::running;
-			UE_LOG(LogTemp, Warning, TEXT("Running"));
-		}else if (states == animationStates::jumpFalling && !Falling) {
-			UE_LOG(LogTemp, Warning, TEXT("Landing 1"));
-			states = animationStates::jumpLanding;
-
-		}else if (states == animationStates::jumpFalling && !Falling && Moving) {
-			UE_LOG(LogTemp, Warning, TEXT("Landing 2"));
-			states = animationStates::jumpLanding;
-
-		}else if (Falling) {
-			UE_LOG(LogTemp, Warning, TEXT("Falling"));
-			states = animationStates::jumpFalling;
-		
 		}else{
-			UE_LOG(LogTemp, Warning, TEXT("Idling"));
 			states = animationStates::idle;
 		}
 	}
 
-
-
-	
 
 	if(PlayerHealth <= 0) // Very very basic death if-statement, if the player health is less than or equal to 0, destroy this actor.
 	{
@@ -133,7 +107,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	check(PlayerInputComponent);
 	// General binds.
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMain::PlayerJump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMain::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMain::StopJumping);
 	PlayerInputComponent->BindAction("Melee", IE_Pressed, this, &AMain::MeleeAttack);
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
@@ -177,13 +151,6 @@ void AMain::LookUpAtRate(float Rate) // should be removed, not necessary as we d
 {
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
-void AMain::PlayerJump()
-{
-	states = animationStates::jumpStart;
-	Jump();
-}
-
-
 void AMain::MeleeAttack()
 {
 	if(bPlayerDead != true)
@@ -199,9 +166,12 @@ void AMain::MeleeAttack()
 			if(IsValid(enemyActor))
 			{
 				enemyActor->minionHealth -= 50;
-	//			enemyActor->deathFunction();
+	 			enemyActor->deathFunction();
 			}
-		}
+		}	
+		// HELP. cast to APluton to access int PlutonHealth
+		
+		//Pluton->PlutonHealth -= 10;
 	}
 
 }
@@ -224,7 +194,7 @@ void AMain::fireProjectile()
 }
 void AMain::HealAbility()
 {
-	if(PlayerHealth < 100 && PlayerStamina >= 25 && bPlayerDead != true) // Simple heal ability, if player health is less than 100 and player stamina is more than or equal to 25
+	if(PlayerHealth < 100 && PlayerStamina >= 25 && bPlayerDead != true) // Simple heal ability, if player health is less that 100 and player stamina is more than or equal to 25
 	{
 		PlayerHealth += 25; //add 25 health (will need tweaking)
 		PlayerStamina -= 25; //remove 25 stamina (will need tweaking)
@@ -236,19 +206,19 @@ void AMain::HealAbility()
 }
 void AMain::Hurt() // Very simple function only made for testing. (REMOVE)
 {
-	PlayerHealth -= 25.f;
+	PlayerHealth -= 25;
 }
 
 
 
 void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Stamina Collide"));
 	//Player collides with a potential stamina
 	//Casting to check if it is a stamina actor
 	APickup_Stamina* ActorCheck = Cast<APickup_Stamina>(OtherActor);
 		if (IsValid(ActorCheck))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Stamina Collide"));
 			if(PlayerStamina <= 75)
 			{
 				PlayerStamina += 25;
@@ -260,3 +230,5 @@ void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 		}
 		
 }
+
+
