@@ -258,7 +258,7 @@ void AMain::HealAbility()
 }
 void AMain::Hurt() // Very simple function only made for testing. (REMOVE)
 {
-	PlayerHealth -= 25.f;
+	PlayerHealth -= 25;
 }
 
 
