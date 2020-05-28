@@ -35,35 +35,38 @@ APluton::APluton()
 void APluton::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void APluton::OnPawnSeen(APawn* SeenPawn)
 {
 	if (SeenPawn == nullptr) {
-		PlutonStates = PlutonAnimationStates::idle;
+		PlutonStates = PlutonAnimationStates::idle; //Changes animation state to "idle"
 		return;
 	}
-	// CALCULATE DISTANCE
+
+//# CALCULATE DISTANCE
+
 	float XDistance = 0;
 	float YDistance = 0;
 	float XYDistance = 0;
 
-	//calculates a positive XDistance.
-	if (GetActorLocation().X > SeenPawn->GetActorLocation().X) {
-		XDistance = GetActorLocation().X - SeenPawn->GetActorLocation().X;
+	//calculate XDistance.
+	if (GetActorLocation().X > SeenPawn->GetActorLocation().X) { //If sentence makes sure XDistance allways return a Positive number.
+		XDistance = GetActorLocation().X - SeenPawn->GetActorLocation().X; 
 	}
 	else {
 		XDistance = SeenPawn->GetActorLocation().X - GetActorLocation().X;
 	}
-	//calculates a positive YDistance.
-	if (GetActorLocation().Y > SeenPawn->GetActorLocation().Y) {
-		YDistance = GetActorLocation().Y - SeenPawn->GetActorLocation().Y;
+	//calculate YDistance.
+	if (GetActorLocation().Y > SeenPawn->GetActorLocation().Y) {  //If sentence makes sure YDistance allways return a Positive number.
+		YDistance = GetActorLocation().Y - SeenPawn->GetActorLocation().Y; 
 	}
 	else {
 		YDistance = SeenPawn->GetActorLocation().Y - GetActorLocation().Y;
 	}
 	XYDistance = sqrt(pow(XDistance, 2) + pow(YDistance, 2)); //Pythagoras theorem, to calculate distance between player and minion (XYDistance)
+
+//# CALCULATE DISTANCE DONE
 
 	//Randomly decides Pluton attack.
 	if (RandomAttack == 0 && bPlutonCanAttack == true){
