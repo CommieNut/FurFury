@@ -12,6 +12,7 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "Projectile.h"
 #include "TimerManager.h"
+#include "Key_BP.h"
 
 // Sets default values
 AMain::AMain()
@@ -96,21 +97,21 @@ void AMain::Tick(float DeltaTime)
 	{	
 		if (Moving && !Falling && states != animationStates::jumpFalling){
 			states = animationStates::running;
-			UE_LOG(LogTemp, Warning, TEXT("Running"));
+			//UE_LOG(LogTemp, Warning, TEXT("Running"));
 		}else if (states == animationStates::jumpFalling && !Falling) {
-			UE_LOG(LogTemp, Warning, TEXT("Landing 1"));
+			//UE_LOG(LogTemp, Warning, TEXT("Landing 1"));
 			states = animationStates::jumpLanding;
 
 		}else if (states == animationStates::jumpFalling && !Falling && Moving) {
-			UE_LOG(LogTemp, Warning, TEXT("Landing 2"));
+			//UE_LOG(LogTemp, Warning, TEXT("Landing 2"));
 			states = animationStates::jumpLanding;
 
 		}else if (Falling) {
-			UE_LOG(LogTemp, Warning, TEXT("Falling"));
+			//UE_LOG(LogTemp, Warning, TEXT("Falling"));
 			states = animationStates::jumpFalling;
 		
 		}else{
-			UE_LOG(LogTemp, Warning, TEXT("Idling"));
+			//UE_LOG(LogTemp, Warning, TEXT("Idling"));
 			states = animationStates::idle;
 		}
 	}
@@ -236,7 +237,7 @@ void AMain::HealAbility()
 }
 void AMain::Hurt() // Very simple function only made for testing. (REMOVE)
 {
-	PlayerHealth -= 25.f;
+	PlayerHealth -= 25;
 }
 
 
@@ -247,6 +248,7 @@ void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 	//Player collides with a potential stamina
 	//Casting to check if it is a stamina actor
 	APickup_Stamina* ActorCheck = Cast<APickup_Stamina>(OtherActor);
+	AKey_BP* ActorCheck2 = Cast<AKey_BP>(OtherActor);
 		if (IsValid(ActorCheck))
 		{
 			if(PlayerStamina <= 75)
@@ -257,6 +259,16 @@ void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 			
 				//Found the actor you're looking for, time to stop
 				return;
+		}
+		else if (IsValid(ActorCheck2)) 
+		{
+			//play sound?
+			//add particle effect?
+			ActorCheck2->Destroy();
+			KeysCollected++;
+			if (KeysCollected == KeysToCollect) {
+				bCanOpenDoor = true;
+			}
 		}
 		
 }

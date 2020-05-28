@@ -60,6 +60,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	int PlayerStamina = 100;
 
+	UPROPERTY(EditAnywhere, Category = "keys")
+	int KeysCollected = 0;
+
+	UPROPERTY(EditAnywhere, Category = "keys")
+	int KeysToCollect = 3;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Player Animation")
 	animationStates states;
 
@@ -81,7 +87,9 @@ public:
 	FTimerHandle FTFireProjectFileHandle;
 	void fireProjectile();
 	bool Moving;
+	bool bCanOpenDoor = false;
 	
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
