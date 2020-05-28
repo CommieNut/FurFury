@@ -12,6 +12,11 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "Projectile.h"
 #include "TimerManager.h"
+#include "objectspawn.h"
+#include "Objectitempickable.h"
+#include "Engine/Engine.h"
+#include "UObject/ObjectMacros.h"
+#include "Materials/MaterialInstance.h"
 
 // Sets default values
 AMain::AMain()
@@ -59,7 +64,23 @@ AMain::AMain()
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Assume immediate control of character without having to set it up in project settings
 	
 	NoiseEmitterComp = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("NoiseEmitter")); //Component that makes noice. used by AI's to detect FurFur
+
+			// objectpickup start
+
+	objectpickrange = CreateDefaultSubobject<USphereComponent>(TEXT("objectpickrange"));
+	objectpickrange->AttachTo(RootComponent);
+	objectpickrange->SetSphereRadius(200.f);
+
+	currentpower = 1.f;
+	playercurrentpower = currentpower;
+
+	//objectpickup end
+
+	// change color on power, didn¨t work.
+	//speedfactor = 0.75f;
+	//basespeed = 10.0f;
 }
+
 
 void AMain::ResetRangedCooldown()
 {
@@ -141,6 +162,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Heal", IE_Pressed, this, &AMain::HealAbility); // This is a permanent ability, needs some tweaking.
 	PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt); // This is a temporary ability used for testing. will be disabled, however converted to a cheat instead.
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMain::RangedAttack);;
+	PlayerInputComponent->BindAction("objectpickup", IE_Pressed, this, &AMain::objectpickup); //objectpickup code using H as input keyboard
 }
 
 
@@ -260,3 +282,65 @@ void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 		}
 		
 }
+
+void AMain::objectpickup() {
+	TArray<AActor*> ourcharacter;
+	objectpickrange->GetOverlappingActors(ourcharacter);
+	float setpower = 0;
+	for (int32 collectedpower = 0; collectedpower < ourcharacter.Num(); ++collectedpower) {
+		Aobjectspawn* pickupobjectspawn = Cast<Aobjectspawn>(ourcharacter[collectedpower]);
+		if (pickupobjectspawn && !pickupobjectspawn->IsPendingKill() && pickupobjectspawn->checkactivation()) {
+			pickupobjectspawn->takeit_Implementation();
+			AObjectitempickable* pickablecomponent = Cast<AObjectitempickable>(pickupobjectspawn);
+			if (pickablecomponent) {
+				setpower += pickablecomponent->yourpower();
+			}
+			pickupobjectspawn->setactivation(false);
+		}
+
+	}
+	if (setpower > 0) {
+		updatemypower(setpower);
+	}
+}
+
+float AMain::getpower() {
+	return currentpower;
+}
+
+float AMain::checkmystartingpower() {
+	return playercurrentpower;
+}
+
+void AMain::updatemypower(float changecurrentpower) {
+
+	playercurrentpower = playercurrentpower + changecurrentpower;
+
+	//change color on power didn't work.
+	//GetCharacterMovement()->MaxWalkSpeed = basespeed + speedfactor * playercurrentpower;
+
+	//powerchangevisual(); didn't work
+
+	//if (changecurrentpower > 0) {
+		//if (GEngine)
+		//{
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::SanitizeFloat(changecurrentpower) + FString("power gain"));
+		//}
+	//}
+	//else
+	//{
+		//if (GEngine)
+		//{
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::SanitizeFloat(changecurrentpower) + FString("power loss"));
+		//}
+	//}
+
+}
+/*void AMain::powerchangevisual() {
+	if (materialpowervisual) {
+		float const powerratio = FMath::Clamp((playercurrentpower / currentpower), 0.0f, 1.0f);
+		FLinearColor const powerratiocolor = FMath::Lerp(Teal, Orange, powerratio);
+		materialpowervisual->SetVectorParameterValue("Param", powerratiocolor);
+		GetMesh()->SetMaterial(0, materialpowervisual);
+	}
+}*/
