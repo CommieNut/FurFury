@@ -32,23 +32,14 @@ AEnemyMinionAI::AEnemyMinionAI()
 }
 void AEnemyMinionAI::OnPawnSeen(APawn* SeenPawn)
 {
-	if (SeenPawn == nullptr)
-	{
-		MinionStates = MinionAnimationStates::idle;
-		return;
-	}
+	if (MinionStates != MinionAnimationStates::dead){
+		if (SeenPawn == nullptr)
+		{
+			MinionStates = MinionAnimationStates::idle;
+			return;
+		}
 		// visual test for debugging (Draws a red sphere if the enemy can see FurFur).
 		// DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 32.0f, 12, FColor::Red, false, 0.5f);
-
-		FVector Direction = SeenPawn->GetActorLocation() - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
-		Direction.Normalize();
-		FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
-		NewLookAt.Pitch = 0.0f; //Resets Pitch and Roll. The enemy is now unable to rotate in these directions.
-		NewLookAt.Roll = 0.0f;
-		SetActorRotation(NewLookAt); // rotates the enemy towards the player.
-		AddActorLocalOffset(FVector(15.f, 0.f, 0.f)); //Moves the enemy forwards, (towards player).
-		MinionStates = MinionAnimationStates::running;
-
 
 		float XDistance = 0;
 		float YDistance = 0;
@@ -71,42 +62,62 @@ void AEnemyMinionAI::OnPawnSeen(APawn* SeenPawn)
 
 		XYDistance = sqrt(pow(XDistance, 2) + pow(YDistance, 2)); //Pythagoras theorem, to calculate distance between player and minion (XYDistance)
 
-		AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-		if (IsValid(Player) && XYDistance <= 100)
+		FVector Direction = SeenPawn->GetActorLocation() - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
+		Direction.Normalize();
+		FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
+		NewLookAt.Pitch = 0.0f; //Resets Pitch and Roll. The enemy is now unable to rotate in these directions.
+		NewLookAt.Roll = 0.0f;
+		SetActorRotation(NewLookAt); // rotates the enemy towards the player.
+		if (XYDistance >= 100)
 		{
-			Player->PlayerHealth -= 1;
+			AddActorLocalOffset(FVector(5.f, 0.f, 0.f)); //Moves the enemy forwards, (towards player).
+		}
+
+		MinionStates = MinionAnimationStates::running;
+
+
+
+
+		AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+		if (IsValid(Player) && XYDistance <= 200 && bCanDamage)
+		{
+			bCanDamage = false;
+			Player->PlayerHealth -= DamagePerHit;
+			GetWorldTimerManager().SetTimer(CanDamageTimerReset, this, &AEnemyMinionAI::CanDamageResetFunction, DamageCoolDown, false);
 		}
 		else {
 			MinionStates = MinionAnimationStates::idle;
 			return;
 		}
-
+	}
 }
 
 void AEnemyMinionAI::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume)
 {
 	// visual test for debugging (Draws a green sphere if the enemy can hear FurFur).
 	// DrawDebugSphere(GetWorld(), Location, 32.0f, 12, FColor::Green, false, 0.5f);
-
-	FVector Direction = Location - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
-	Direction.Normalize();
-
-
-	FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
-	NewLookAt.Pitch = 0.0f; //Resets Pitch and Roll. The enemy is now unable to rotate in these directions.
-	NewLookAt.Roll = 0.0f;
-	SetActorRotation(NewLookAt); // rotates the enemy towards the player.
-
-	AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if (IsValid(Player))
+	if(MinionStates != MinionAnimationStates::dead)
 	{
-		Player->PlayerHealth -= 1;
+		FVector Direction = Location - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
+		Direction.Normalize();
+
+
+		FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
+		NewLookAt.Pitch = 0.0f; //Resets Pitch and Roll. The enemy is now unable to rotate in these directions.
+		NewLookAt.Roll = 0.0f;
+		SetActorRotation(NewLookAt); // rotates the enemy towards the player.
 	}
+
+
+//	AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+//	if (IsValid(Player))
+//	{
+//		Player->PlayerHealth -= 1;
+//	}
 }
 
 void AEnemyMinionAI::deathFunction()
 {
-	GetCharacterMovement()->DisableMovement();
 	MinionStates = MinionAnimationStates::dead;
 	FTimerHandle THandle;
 	GetWorld()->GetTimerManager().SetTimer(THandle, this, &AEnemyMinionAI::destroyFunction, ftimeTilDeath, false);
@@ -142,6 +153,11 @@ void AEnemyMinionAI::SpawnMana(FVector Loc, FRotator Rot)
 	FActorSpawnParameters SpawnParam;
 	AActor* SpawnedActorRef = GetWorld()->SpawnActor<AActor>(ActorToSpawn, Loc, Rot, SpawnParam);
 	UE_LOG(LogTemp, Warning, TEXT("Stamina Spawned"));
+}
+
+void AEnemyMinionAI::CanDamageResetFunction()
+{
+	bCanDamage = true;
 }
 
 // Called when the game starts or when spawned

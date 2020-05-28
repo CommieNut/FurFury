@@ -25,11 +25,11 @@ class FURFURY_API AEnemyMinionAI : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AEnemyMinionAI();
-
+	
 	AMain* PlayerCharacter;
 
 	UPROPERTY(EditAnywhere, Category = "Minion Death Function Property")
-	float ftimeTilDeath = 0.542f/*0.225f*/;
+	float ftimeTilDeath = 0.600f/*0.225f*/;
 
 	UPROPERTY(EditAnywhere, Category = "Minion Particle System")
 	UParticleSystem* MinionDeathParticle;
@@ -57,6 +57,19 @@ public:
 		MinionAnimationStates MinionStates;
 
 
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Minion Damage Output")
+		float DamageCoolDown = 0.f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Minion Damage Output")
+		int DamagePerHit = 0;
+
+	bool bCanDamage = true;
+
+	FTimerHandle CanDamageTimerReset;
+
+	void CanDamageResetFunction();
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
