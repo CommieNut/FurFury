@@ -84,11 +84,27 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Player Variables")
 	bool bPlayerDead;
 
+	bool SetOnce = false;
+
+	UPROPERTY(EditAnywhere, Category = "Audio Components")
+		class UAudioComponent* JumpAudio;
+
+	UPROPERTY(EditAnywhere, Category = "Audio Components")
+		class UAudioComponent* FootstepsAudio;
+
+	UPROPERTY(EditAnywhere, Category = "Audio Components")
+		class UAudioComponent* HitCommentAudio;
+
+	UPROPERTY(EditAnywhere, Category = "Audio Components")
+		class UAudioComponent* RangedAttackAudio;
+
+	UPROPERTY(EditAnywhere, Category = "Audio Components")
+		class UAudioComponent* MeleeSwingAudio;
+
 	FTimerHandle FTFireProjectFileHandle;
 	void fireProjectile();
 	bool Moving;
 	bool bCanOpenDoor = false;
-	
 
 protected:
 	// Called when the game starts or when spawned

@@ -13,6 +13,7 @@
 #include "Projectile.h"
 #include "TimerManager.h"
 #include "Key_BP.h"
+#include "Components/AudioComponent.h"
 
 // Sets default values
 AMain::AMain()
@@ -60,6 +61,12 @@ AMain::AMain()
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Assume immediate control of character without having to set it up in project settings
 	
 	NoiseEmitterComp = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("NoiseEmitter")); //Component that makes noice. used by AI's to detect FurFur
+
+	JumpAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Jump Audio"));
+	FootstepsAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Foot Steps Audio"));
+	HitCommentAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Death Comment Audio"));
+	RangedAttackAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Ranged Attack Audio"));
+	MeleeSwingAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Melee Swing Audio"));
 }
 
 void AMain::ResetRangedCooldown()
@@ -119,11 +126,12 @@ void AMain::Tick(float DeltaTime)
 
 
 	
-
-	if(PlayerHealth <= 0) // Very very basic death if-statement, if the player health is less than or equal to 0, destroy this actor.
+	if(PlayerHealth <= 0 && !SetOnce) // Very very basic death if-statement, if the player health is less than or equal to 0, destroy this actor.
 	{
 		//this->Destroy();
+		SetOnce = true;
 		GetCharacterMovement()->DisableMovement();
+		HitCommentAudio->Play(0.345f);
 		bPlayerDead = true;
 	}
 }
@@ -180,8 +188,17 @@ void AMain::LookUpAtRate(float Rate) // should be removed, not necessary as we d
 }
 void AMain::PlayerJump()
 {
-	states = animationStates::jumpStart;
-	Jump();
+	if (!bPlayerDead)
+	{
+
+		if (!GetCharacterMovement()->IsFalling())
+		{
+			JumpAudio->Play(0.023f);
+			states = animationStates::jumpStart;
+			Jump();
+		}
+
+	}
 }
 
 
@@ -189,6 +206,7 @@ void AMain::MeleeAttack()
 {
 	if(bPlayerDead != true)
 	{
+		MeleeSwingAudio->Play(0.244f);
 		states = animationStates::attacking; //Animation state, changes to attacking on activation of this function. Does not loop.
 		UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
 		TArray<AActor*> TempActors; // Make an array to contain colliding actors
@@ -218,10 +236,11 @@ void AMain::RangedAttack()
 
 void AMain::fireProjectile()
 {
-			FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector() * 200.f);
-			PlayerStamina -= 5;
-			GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
-			GetWorld()->GetTimerManager().SetTimer(FTCooldownTimerHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
+	RangedAttackAudio->Play(0.314f);
+	FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector() * 200.f);
+	PlayerStamina -= 5;
+	GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
+	GetWorld()->GetTimerManager().SetTimer(FTCooldownTimerHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
 }
 void AMain::HealAbility()
 {
