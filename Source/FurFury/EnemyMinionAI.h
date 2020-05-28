@@ -25,7 +25,7 @@ public:
 	class USphereComponent* Hitbox;
 
 	UPROPERTY(EditAnywhere, Category = "Minion Death Function Property")
-	float ftimeTilDeath = 0.455f/*0.225f*/;
+	float ftimeTilDeath = 0.01f/*0.225f*/;
 
 	UPROPERTY(EditAnywhere, Category = "Minion Particle System")
 	UParticleSystem* MinionDeathParticle;

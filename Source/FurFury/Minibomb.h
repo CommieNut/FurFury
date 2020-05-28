@@ -7,6 +7,7 @@
 #include "Main.h"
 #include "Minibomb.generated.h"
 
+
 UCLASS()
 class FURFURY_API AMinibomb : public ACharacter
 {
@@ -50,5 +51,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
+	//tutorial from those https://www.youtube.com/watch?v=UfCImpvfDpQ https://www.youtube.com/watch?v=LsNW4FPHuZE https://www.youtube.com/watch?v=2zM3X65Z_J4 https://www.youtube.com/watch?v=mSRov77hNR4&list=RDCMUCBobmJyzsJ6Ll7UbfhI4iwQ&start_radio=1&t=2
 
 };

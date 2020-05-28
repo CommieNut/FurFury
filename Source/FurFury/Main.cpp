@@ -18,6 +18,7 @@
 #include "UObject/ObjectMacros.h"
 #include "Materials/MaterialInstance.h"
 
+
 // Sets default values
 AMain::AMain()
 {
@@ -72,7 +73,7 @@ AMain::AMain()
 	objectpickrange->AttachTo(RootComponent);
 	objectpickrange->SetSphereRadius(200.f);
 
-	currentpower = 2000.f;
+	currentpower = 1.f;
 	playercurrentpower = currentpower;
 
 	//objectpickup end

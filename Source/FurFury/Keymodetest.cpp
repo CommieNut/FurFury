@@ -14,8 +14,9 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "EngineUtils.h"
+//tutorial from those https://www.youtube.com/watch?v=UfCImpvfDpQ https://www.youtube.com/watch?v=LsNW4FPHuZE https://www.youtube.com/watch?v=2zM3X65Z_J4 https://www.youtube.com/watch?v=mSRov77hNR4&list=RDCMUCBobmJyzsJ6Ll7UbfhI4iwQ&start_radio=1&t=2
 
-// a difficulty mode for losing power, or trying out before making a trap that reduce power
+// a difficulty mode for losing power, or trying out before making a trap that reduce power 
 AKeymodetest::AKeymodetest() {
 
 	static ConstructorHelpers::FClassFinder<APawn>thisishard(TEXT("/Game/Blueprints/MyMain.MyMain"));
@@ -77,6 +78,7 @@ void AKeymodetest::Tick(float Deltatime) {
 	if (targetoflosingmana) {
 		if (targetoflosingmana->playercurrentpower > winconditionwithpower) {
 			setcurrentstate(EpowerPlayState::EWon);
+			///write something here? any code that move a object? oh wait i dont have the gate in the c++, ja blueprint/in unreal  nei bare blueprint og unreal map
 		}
 		else if (targetoflosingmana->playercurrentpower > 0) {
 			targetoflosingmana->updatemypower(-Deltatime * slowpowerlose * (targetoflosingmana->getpower()));
