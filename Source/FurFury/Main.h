@@ -13,6 +13,10 @@ enum class animationStates : uint8 {
 	idle,
 	attacking,
 	running,
+	jumpStart,
+	jumpFalling,
+	jumpLanding,
+	jumpGliding, // Not currently in use.
 	fire,
 	dead
 };
@@ -56,9 +60,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 	int PlayerStamina = 100;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Variables")
-	bool bIsRunning = false;
-
 	UPROPERTY(BlueprintReadOnly, Category = "Player Animation")
 	animationStates states;
 
@@ -79,6 +80,8 @@ public:
 
 	FTimerHandle FTFireProjectFileHandle;
 	void fireProjectile();
+	bool Moving;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -109,6 +112,8 @@ public:
 	*/
 	void LookUpAtRate(float Rate);
 
+	void PlayerJump();
+	
 	void MeleeAttack();
 
 	void HealAbility();
@@ -116,6 +121,8 @@ public:
 
 	void RangedAttack();
 
+
+	
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
