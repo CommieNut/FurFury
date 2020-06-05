@@ -70,14 +70,11 @@ AMain::AMain()
 	MeleeSwingAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Melee Swing Audio"));
 }
 
-void AMain::ResetRangedCooldown()
+void AMain::ResetRangedCooldown() // Time activated function, to freeze the ability to fire projectiles temporarily. cooldown.
 {
 	RangedCooldown = false;
 }
-
-
-
-void AMain::CanMeleeReset()
+void AMain::CanMeleeReset() // Time activated function, to freeze the ability to melee temporarily. cooldown. [Implemented incorrectly, might not work].
 {
 	bCanMelee = true;
 }
@@ -89,15 +86,13 @@ void AMain::BeginPlay()
 
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMain::OnBeginOverlap); // A general overlap function. Mainly used to pick up mana. 
 }
-
-
-
 // Called every frame
 void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	bool Falling = GetCharacterMovement()->IsFalling();
+	
 	if (GetInputAxisValue("MoveForward") != 0 || GetInputAxisValue("MoveRight") != 0)
 	{
 		Moving = true;
@@ -144,7 +139,6 @@ void AMain::Tick(float DeltaTime)
 		bPlayerDead = true;
 	}
 }
-
 // Called to bind functionality to input
 void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -160,8 +154,6 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	//PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt); // This is a temporary ability used for testing. will be disabled, however converted to a cheat instead.
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMain::RangedAttack);;
 }
-
-
 void AMain::MoveForward(float Value) // Basic movement code for forward and backwards.
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
@@ -209,8 +201,6 @@ void AMain::PlayerJump()
 
 	}
 }
-
-
 void AMain::MeleeAttack()
 {
 	if(bPlayerDead != true && bCanMelee == true)
@@ -219,7 +209,7 @@ void AMain::MeleeAttack()
 		states = animationStates::attacking; //Animation state, changes to attacking on activation of this function. Does not loop.
 		UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
 		TArray<AActor*> TempActors; // Make an array to contain colliding actors
-		MeleeHitbox->GetOverlappingActors(TempActors, AEnemyMinionAI::StaticClass()); // Checks for colliding actors, if true then add to the temporary array. A filter is added to add enemies only.
+		MeleeHitbox->GetOverlappingActors(TempActors, ACharacter::StaticClass()); // Checks for colliding actors, if true then add to the temporary array. A filter is added to add enemies only.
 		for (size_t i = 0; i < TempActors.Num(); i++) // runs through the array
 		{
 			//TempActors[i]->Destroy(); // Destroy actor in that specefic array index
@@ -248,14 +238,13 @@ void AMain::MeleeAttack()
 }
 void AMain::RangedAttack()
 {
-	if (bPlayerDead != true && RangedCooldown == false && PlayerStamina >= 5 && projectile)
+	if (bPlayerDead != true && RangedCooldown == false && PlayerStamina >= 10 && projectile)
 	{
 		RangedCooldown = true;
 		states = animationStates::fire;
 		GetWorld()->GetTimerManager().SetTimer(FTFireProjectFileHandle, this, &AMain::fireProjectile, 0.700f, false);
 	}
 }
-
 void AMain::fireProjectile()
 {
 	RangedAttackAudio->Play(0.314f);
@@ -281,11 +270,10 @@ void AMain::HealAbility()
 //	PlayerHealth -= 25;
 //}
 
-
-
+// All overlap functions are tested via IsValid()
 void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Stamina Collide"));
+	//UE_LOG(LogTemp, Warning, TEXT("Stamina Collide"));
 	//Player collides with a potential stamina
 	//Casting to check if it is a stamina actor
 	APickup_Stamina* ActorCheck = Cast<APickup_Stamina>(OtherActor);
@@ -296,7 +284,7 @@ void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 			{
 				PlayerStamina += 25;
 				ActorCheck->Destroy();
-			}else
+			}else if(PlayerStamina > 100)
 			{
 				PlayerStamina = 100;
 				ActorCheck->Destroy();
