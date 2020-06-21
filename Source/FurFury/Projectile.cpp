@@ -32,6 +32,8 @@ AProjectile::AProjectile()
 
 	ProjectileTrail = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ProjectileTrail"));
 	ProjectileTrail->SetupAttachment(ColliderComponent);
+
+	
 }
 
 // Called when the game starts or when spawned
@@ -50,6 +52,7 @@ void AProjectile::Tick(float DeltaTime)
 
 void AProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	AMain* PlayerChar = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
 	TArray<AActor*> TempActors; // Make an array to contain colliding actors
 	ColliderComponent->GetOverlappingActors(TempActors, APawn::StaticClass());
@@ -65,14 +68,13 @@ void AProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		auto enemyActor3 = Cast<AMain>(TempActors[i]);
 		if (IsValid(enemyActor1))
 		{
-			enemyActor1->minionHealth -= 50;
-			//			enemyActor->deathFunction();
+			enemyActor1->minionHealth -= PlayerChar->RangedDamageINT;
 		}else if(IsValid(enemyActor2))
 		{
-			enemyActor2->Destroy();
+			enemyActor2->PlutonHealth -= PlayerChar->RangedDamageINT;
 		}else if(IsValid(enemyActor3))
 		{
-			enemyActor3->PlayerHealth -= 25;
+			enemyActor3->PlayerHealth -= PlayerChar->RangedDamageINT;
 		}
 	}
 	this->Destroy();

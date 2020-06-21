@@ -12,11 +12,9 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "Projectile.h"
 #include "TimerManager.h"
-#include "objectspawn.h"
-#include "Objectitempickable.h"
-#include "Engine/Engine.h"
-#include "UObject/ObjectMacros.h"
-#include "Materials/MaterialInstance.h"
+#include "Key_BP.h"
+#include "Components/AudioComponent.h"
+#include "Pluton.h"
 
 // Sets default values
 AMain::AMain()
@@ -65,22 +63,12 @@ AMain::AMain()
 	
 	NoiseEmitterComp = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("NoiseEmitter")); //Component that makes noice. used by AI's to detect FurFur
 
-			// objectpickup start
-
-	objectpickrange = CreateDefaultSubobject<USphereComponent>(TEXT("objectpickrange"));
-	objectpickrange->AttachTo(RootComponent);
-	objectpickrange->SetSphereRadius(200.f);
-
-	currentpower = 1.f;
-	playercurrentpower = currentpower;
-
-	//objectpickup end
-
-	// change color on power, didn¨t work.
-	//speedfactor = 0.75f;
-	//basespeed = 10.0f;
+	JumpAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Jump Audio"));
+	FootstepsAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Foot Steps Audio"));
+	HitCommentAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Death Comment Audio"));
+	RangedAttackAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Ranged Attack Audio"));
+	MeleeSwingAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Melee Swing Audio"));
 }
-
 
 void AMain::ResetRangedCooldown()
 {
@@ -88,6 +76,11 @@ void AMain::ResetRangedCooldown()
 }
 
 
+
+void AMain::CanMeleeReset()
+{
+	bCanMelee = true;
+}
 
 // Called when the game starts or when spawned
 void AMain::BeginPlay()
@@ -117,33 +110,37 @@ void AMain::Tick(float DeltaTime)
 	{	
 		if (Moving && !Falling && states != animationStates::jumpFalling){
 			states = animationStates::running;
-			UE_LOG(LogTemp, Warning, TEXT("Running"));
+			//UE_LOG(LogTemp, Warning, TEXT("Running"));
 		}else if (states == animationStates::jumpFalling && !Falling) {
-			UE_LOG(LogTemp, Warning, TEXT("Landing 1"));
+			//UE_LOG(LogTemp, Warning, TEXT("Landing 1"));
 			states = animationStates::jumpLanding;
 
 		}else if (states == animationStates::jumpFalling && !Falling && Moving) {
-			UE_LOG(LogTemp, Warning, TEXT("Landing 2"));
+			//UE_LOG(LogTemp, Warning, TEXT("Landing 2"));
 			states = animationStates::jumpLanding;
 
 		}else if (Falling) {
-			UE_LOG(LogTemp, Warning, TEXT("Falling"));
+			//UE_LOG(LogTemp, Warning, TEXT("Falling"));
 			states = animationStates::jumpFalling;
 		
 		}else{
-			UE_LOG(LogTemp, Warning, TEXT("Idling"));
+			//UE_LOG(LogTemp, Warning, TEXT("Idling"));
 			states = animationStates::idle;
 		}
 	}
 
-
+	if(EnemyKilled >= EnemySpawned)
+	{
+		bCanDamagePluton = true;
+	}
 
 	
-
-	if(PlayerHealth <= 0) // Very very basic death if-statement, if the player health is less than or equal to 0, destroy this actor.
+	if(PlayerHealth <= 0 && !SetOnce) // Very very basic death if-statement, if the player health is less than or equal to 0, destroy this actor.
 	{
 		//this->Destroy();
+		SetOnce = true;
 		GetCharacterMovement()->DisableMovement();
+		HitCommentAudio->Play(0.345f);
 		bPlayerDead = true;
 	}
 }
@@ -160,9 +157,8 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
 	PlayerInputComponent->BindAction("Heal", IE_Pressed, this, &AMain::HealAbility); // This is a permanent ability, needs some tweaking.
-	PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt); // This is a temporary ability used for testing. will be disabled, however converted to a cheat instead.
+	//PlayerInputComponent->BindAction("Sacrifice", IE_Pressed, this, &AMain::Hurt); // This is a temporary ability used for testing. will be disabled, however converted to a cheat instead.
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMain::RangedAttack);;
-	PlayerInputComponent->BindAction("objectpickup", IE_Pressed, this, &AMain::objectpickup); //objectpickup code using H as input keyboard
 }
 
 
@@ -201,15 +197,25 @@ void AMain::LookUpAtRate(float Rate) // should be removed, not necessary as we d
 }
 void AMain::PlayerJump()
 {
-	states = animationStates::jumpStart;
-	Jump();
+	if (!bPlayerDead)
+	{
+
+		if (!GetCharacterMovement()->IsFalling())
+		{
+			JumpAudio->Play(0.023f);
+			states = animationStates::jumpStart;
+			Jump();
+		}
+
+	}
 }
 
 
 void AMain::MeleeAttack()
 {
-	if(bPlayerDead != true)
+	if(bPlayerDead != true && bCanMelee == true)
 	{
+		
 		states = animationStates::attacking; //Animation state, changes to attacking on activation of this function. Does not loop.
 		UE_LOG(LogTemp, Warning, TEXT("Melee Attack!"));
 		TArray<AActor*> TempActors; // Make an array to contain colliding actors
@@ -218,10 +224,23 @@ void AMain::MeleeAttack()
 		{
 			//TempActors[i]->Destroy(); // Destroy actor in that specefic array index
 			auto enemyActor = Cast<AEnemyMinionAI>(TempActors[i]);
+			auto enemyActor2 = Cast<APluton>(TempActors[i]);
 			if(IsValid(enemyActor))
 			{
-				enemyActor->minionHealth -= 50;
-	//			enemyActor->deathFunction();
+				MeleeSwingAudio->Play(0.244f);
+				enemyActor->minionHealth -= MeleeDamageINT;
+				bCanMelee = false;
+				GetWorld()->GetTimerManager().SetTimer(FTCanMeleeResetter, this, &AMain::CanMeleeReset, 0.200f, false);
+			}else
+			{
+				if(bCanDamagePluton)
+				{
+					MeleeSwingAudio->Play(0.244f);
+					enemyActor2->PlutonHealth -= MeleeDamageINT;
+					bCanMelee = false;
+					GetWorld()->GetTimerManager().SetTimer(FTCanMeleeResetter, this, &AMain::CanMeleeReset, 0.200f, false);
+				}
+				
 			}
 		}
 	}
@@ -239,10 +258,11 @@ void AMain::RangedAttack()
 
 void AMain::fireProjectile()
 {
-			FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector() * 200.f);
-			PlayerStamina -= 5;
-			GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
-			GetWorld()->GetTimerManager().SetTimer(FTCooldownTimerHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
+	RangedAttackAudio->Play(0.314f);
+	FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector() * 200.f);
+	PlayerStamina -= 10;
+	GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
+	GetWorld()->GetTimerManager().SetTimer(FTCooldownTimerHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
 }
 void AMain::HealAbility()
 {
@@ -256,10 +276,10 @@ void AMain::HealAbility()
 		}
 	}
 }
-void AMain::Hurt() // Very simple function only made for testing. (REMOVE)
-{
-	PlayerHealth -= 25.f;
-}
+//void AMain::Hurt() // Very simple function only made for testing. (REMOVE)
+//{
+//	PlayerHealth -= 25;
+//}
 
 
 
@@ -269,78 +289,31 @@ void AMain::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 	//Player collides with a potential stamina
 	//Casting to check if it is a stamina actor
 	APickup_Stamina* ActorCheck = Cast<APickup_Stamina>(OtherActor);
+	AKey_BP* ActorCheck2 = Cast<AKey_BP>(OtherActor);
 		if (IsValid(ActorCheck))
 		{
 			if(PlayerStamina <= 75)
 			{
 				PlayerStamina += 25;
 				ActorCheck->Destroy();
+			}else
+			{
+				PlayerStamina = 100;
+				ActorCheck->Destroy();
 			}
 			
 				//Found the actor you're looking for, time to stop
 				return;
 		}
+		else if (IsValid(ActorCheck2)) 
+		{
+			//play sound?
+			//add particle effect?
+			ActorCheck2->Destroy();
+			KeysCollected++;
+			if (KeysCollected == KeysToCollect) {
+				bCanOpenDoor = true;
+			}
+		}
 		
 }
-
-void AMain::objectpickup() {
-	TArray<AActor*> ourcharacter;
-	objectpickrange->GetOverlappingActors(ourcharacter);
-	float setpower = 0;
-	for (int32 collectedpower = 0; collectedpower < ourcharacter.Num(); ++collectedpower) {
-		Aobjectspawn* pickupobjectspawn = Cast<Aobjectspawn>(ourcharacter[collectedpower]);
-		if (pickupobjectspawn && !pickupobjectspawn->IsPendingKill() && pickupobjectspawn->checkactivation()) {
-			pickupobjectspawn->takeit_Implementation();
-			AObjectitempickable* pickablecomponent = Cast<AObjectitempickable>(pickupobjectspawn);
-			if (pickablecomponent) {
-				setpower += pickablecomponent->yourpower();
-			}
-			pickupobjectspawn->setactivation(false);
-		}
-
-	}
-	if (setpower > 0) {
-		updatemypower(setpower);
-	}
-}
-
-float AMain::getpower() {
-	return currentpower;
-}
-
-float AMain::checkmystartingpower() {
-	return playercurrentpower;
-}
-
-void AMain::updatemypower(float changecurrentpower) {
-
-	playercurrentpower = playercurrentpower + changecurrentpower;
-
-	//change color on power didn't work.
-	//GetCharacterMovement()->MaxWalkSpeed = basespeed + speedfactor * playercurrentpower;
-
-	//powerchangevisual(); didn't work
-
-	//if (changecurrentpower > 0) {
-		//if (GEngine)
-		//{
-			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::SanitizeFloat(changecurrentpower) + FString("power gain"));
-		//}
-	//}
-	//else
-	//{
-		//if (GEngine)
-		//{
-			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::SanitizeFloat(changecurrentpower) + FString("power loss"));
-		//}
-	//}
-
-}
-/*void AMain::powerchangevisual() {
-	if (materialpowervisual) {
-		float const powerratio = FMath::Clamp((playercurrentpower / currentpower), 0.0f, 1.0f);
-		FLinearColor const powerratiocolor = FMath::Lerp(Teal, Orange, powerratio);
-		materialpowervisual->SetVectorParameterValue("Param", powerratiocolor);
-		GetMesh()->SetMaterial(0, materialpowervisual);
-	}
-}*/

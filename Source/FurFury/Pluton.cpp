@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "particles/ParticleSystem.h"
 
 // Sets default values
 APluton::APluton()
@@ -35,76 +36,83 @@ APluton::APluton()
 void APluton::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void APluton::OnPawnSeen(APawn* SeenPawn)
 {
 	if (SeenPawn == nullptr) {
+		PlutonStates = PlutonAnimationStates::idle; //Changes animation state to "idle"
 		return;
 	}
-	// CALCULATE DISTANCE
-	float XDistance = 0;
-	float YDistance = 0;
-	float XYDistance = 0;
 
-	//calculates a positive XDistance.
-	if (GetActorLocation().X > SeenPawn->GetActorLocation().X) {
-		XDistance = GetActorLocation().X - SeenPawn->GetActorLocation().X;
-	}
-	else {
-		XDistance = SeenPawn->GetActorLocation().X - GetActorLocation().X;
-	}
-	//calculates a positive YDistance.
-	if (GetActorLocation().Y > SeenPawn->GetActorLocation().Y) {
-		YDistance = GetActorLocation().Y - SeenPawn->GetActorLocation().Y;
-	}
-	else {
-		YDistance = SeenPawn->GetActorLocation().Y - GetActorLocation().Y;
-	}
-	XYDistance = sqrt(pow(XDistance, 2) + pow(YDistance, 2)); //Pythagoras theorem, to calculate distance between player and minion (XYDistance)
+//# CALCULATE DISTANCE
 
-	//Randomly decides Pluton attack.
+		float XDistance = 0;
+		float YDistance = 0;
+		float XYDistance = 0;
+
+		//calculate XDistance.
+		if (GetActorLocation().X > SeenPawn->GetActorLocation().X) { //the if sentence makes sure XDistance allways returns a Positive number.
+			XDistance = GetActorLocation().X - SeenPawn->GetActorLocation().X; 
+		}
+		else {
+			XDistance = SeenPawn->GetActorLocation().X - GetActorLocation().X;
+		}
+		//calculate YDistance.
+		if (GetActorLocation().Y > SeenPawn->GetActorLocation().Y) {  //the if sentence makes sure YDistance allways returns a Positive number.
+			YDistance = GetActorLocation().Y - SeenPawn->GetActorLocation().Y; 
+		}
+		else {
+			YDistance = SeenPawn->GetActorLocation().Y - GetActorLocation().Y;
+		}
+		XYDistance = sqrt(pow(XDistance, 2) + pow(YDistance, 2)); //Pythagoras theorem, to calculate distance between player and minion (XYDistance)
+
+//# CALCULATE DISTANCE DONE
+
+
+	//Randomly chooses an attack to use
 	if (RandomAttack == 0 && bPlutonCanAttack == true){
-		RandomAttack = FMath::RandRange(1, 3);
+		RandomAttack = FMath::RandRange(1, 2); //finds a random number between 1 and 2
 		UE_LOG(LogTemp, Warning, TEXT("Attack: %d"), RandomAttack);
 	}
 
-	switch (RandomAttack) {
+	switch (RandomAttack) { // This Switch assigns attacks to Pluton. Based on the "RandomAttack" variable generated above.
 
 	case HeadbuttC: // 1
-		if (bPlutonCanWalk) {
+		if (bPlutonCanWalk) { //runs if bPlutonCanWalk == true.
 			GetWorldTimerManager().ClearTimer(PlutonWalkDelayHandle);
-			Walk(SeenPawn, XYDistance, 20);
-			Headbutt(XYDistance);
+			Walk(SeenPawn, XYDistance, 20); //walks towards the player with a walking speed of 20 (pretty fast)
+			Headbutt(XYDistance); //deals 20 damage. Sets animInstance to headbutt.
 		}
-		else if (!GetWorldTimerManager().IsTimerActive(PlutonWalkDelayHandle)) {
-			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 1.5f, false);
+		else if (!GetWorldTimerManager().IsTimerActive(PlutonWalkDelayHandle)) { //this if sentence runs right after the RandomAttack has been chosen
+			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 1.5f, false);//adds a timer delay which indicates when pluton can attack (1.5sec).
 		}
 		break;
 
 	case DoubleSwipeC: // 2
 		if (bPlutonCanWalk) {
 			GetWorldTimerManager().ClearTimer(PlutonWalkDelayHandle);
-			Walk(SeenPawn, XYDistance, 12);
-			DoubleSwipe(XYDistance);
+			Walk(SeenPawn, XYDistance, 12); //walks towards the player with a walking speed of 12, normal speed
+			DoubleSwipe(XYDistance); //Deals 30 damage (15 per hit/swipe). Sets animInstance to DoubleSwipe
 		}
-		else if (!GetWorldTimerManager().IsTimerActive(PlutonWalkDelayHandle)) {
-			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 0.3f, false);
+		else if (!GetWorldTimerManager().IsTimerActive(PlutonWalkDelayHandle)) { //this if sentence runs right after the RandomAttack has been chosen
+			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 0.3f, false); // adds a 300ms timer delay. (this is the delay between each hit/swipe)
 		}
 		break;
-
+/*
 	case ThrowRockC: // 3
 		if (bPlutonCanWalk) {
 			GetWorldTimerManager().ClearTimer(PlutonWalkDelayHandle);
-			Walk(SeenPawn, XYDistance, 0);
-			ThrowRock(XYDistance);
+			Walk(SeenPawn, XYDistance, 0); //Calls the Walk function with a walkspeed of 0. This makes Pluton stand still, but still rotates towards the player.
+			ThrowRock(XYDistance); // Deals 20 damage. And should throw a rock (This will not be finished for folder exam).
 		}
 		else if (!GetWorldTimerManager().IsTimerActive(PlutonWalkDelayHandle)) {
 			GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 1.5f, false);
 		}
 		break;
+*/
 	}
+
 	
 }
 
@@ -129,6 +137,7 @@ void APluton::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, floa
 
 void APluton::Walk(APawn* SeenPawn, float XYDistance, float WalkSpeed) 
 {
+		PlutonStates = PlutonAnimationStates::move;
 		DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 32.0f, 12, FColor::Red, false, 0.5f);
 
 		FVector Direction = SeenPawn->GetActorLocation() - GetActorLocation(); //Gets the location of the SEEN pawn, and calculates the direction to the pawn.
@@ -138,22 +147,20 @@ void APluton::Walk(APawn* SeenPawn, float XYDistance, float WalkSpeed)
 		NewLookAt.Roll = 0.0f;
 		SetActorRotation(NewLookAt); // rotates the enemy towards the player.
 		
-		if (XYDistance >= 300 && RandomAttack != ThrowRockC) {
+		if (XYDistance >= 300) {
+			PlutonStates = PlutonAnimationStates::move;
 			AddActorLocalOffset(FVector(WalkSpeed, 0.f, 0.f)); //Moves the character in Plutons X-direction.
 		}
 		else {
 			bPlutonCanWalk = false;
+			PlutonStates = PlutonAnimationStates::idle;
 		}
 }
 
 void APluton::Headbutt(float DistanceToPawn)
 {
 	if (DistanceToPawn <= 300) {
-		/*CHANGE ANIMATION
-
-		States = animationStates::Headbutt; ?
-
-		*/
+		PlutonStates = PlutonAnimationStates::headbutt;
 
 		AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 		if (IsValid(Player))
@@ -177,11 +184,7 @@ void APluton::DoubleSwipe(float DistanceToPawn)
 	else if (DistanceToPawn <= 300 && bPlutonCanAttack == true) {
 		Swipes++;
 		UE_LOG(LogTemp, Warning, TEXT("Double Swipe"));
-		/*CHANGE ANIMATION
-		 
-		States = animationStates::DoubleSwipe; ?
-
-		*/
+		PlutonStates = PlutonAnimationStates::dswipe;
 		AMain* Player = Cast<AMain>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 		if (IsValid(Player))
 		{
@@ -194,6 +197,7 @@ void APluton::DoubleSwipe(float DistanceToPawn)
 
 void APluton::ThrowRock(float DistanceToPawn)
 {
+	PlutonStates = PlutonAnimationStates::trock;
 	FVector projectileSpawnLocation = GetActorLocation() + (GetActorForwardVector() * 200.f);
 	//GetWorld()->SpawnActor<AProjectile>(projectile, projectileSpawnLocation, GetActorRotation());
 	//GetWorld()->GetTimerManager().SetTimer(FTCooldownTimerHandle, this, &AMain::ResetRangedCooldown, FCoolDownTime, false);
@@ -214,10 +218,33 @@ void APluton::ThrowRock(float DistanceToPawn)
 	GetWorld()->GetTimerManager().SetTimer(PlutonWalkDelayHandle, this, &APluton::ResetWalk, 2.0f, false);
 }
 
+void APluton::PlutonDeathFunction()
+{
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathParticle, GetActorLocation(), GetActorRotation(), true, EPSCPoolMethod::None, true);
+}
+
 // Called every frame
 void APluton::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	if(!bPlutonCanWalk)
+	{
+		PlutonStates = PlutonAnimationStates::idle;
+	}
+	else {
+		PlutonStates = PlutonAnimationStates::move;
+	}
+
+	if(PlutonHealth<=0)
+	{
+		PlutonIsDead = true;
+		PlutonDeathFunction();
+	}else
+	{
+		PlutonIsDead = false;
+	}
 }
 
 
